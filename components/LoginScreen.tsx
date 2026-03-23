@@ -8,7 +8,7 @@ interface LoginScreenProps {
   onGuestPlay: () => void;
   onLogout: () => void;
   onOpenGameMaster?: () => void;
-  mathPoints: number;
+  socialPoints: number;
   playerLevel: number;
   studentProfile: StudentProfile | null;
   onStudentProfileSet: (profile: StudentProfile) => void;
@@ -138,7 +138,7 @@ const ProfileSetup: React.FC<{
 // ── Main Login Screen ──────────────────────────────────────────────────────
 const LoginScreen: React.FC<LoginScreenProps> = ({
   currentUser, onLogin, onGuestPlay, onLogout, onOpenGameMaster,
-  mathPoints, playerLevel, studentProfile, onStudentProfileSet,
+  socialPoints, playerLevel, studentProfile, onStudentProfileSet,
 }) => {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
 
@@ -164,7 +164,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
         <div className="flex-1 text-center lg:text-left">
           {/* Eyebrow */}
           <p className="text-xs text-sky-400 tracking-[0.5em] uppercase font-bold mb-4">
-            English Battle Platform
+            Social Battle Platform
           </p>
 
           {/* Title */}
@@ -181,14 +181,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
           <div className="flex items-center gap-3 lg:justify-start justify-center mb-4">
             <div className="h-0.5 w-8 rounded-full" style={{ background: 'rgba(249,115,22,0.5)' }} />
             <span className="text-[10px] font-bold tracking-[0.3em] uppercase" style={{ color: '#FB923C' }}>
-              English Battle Platform
+              Social Battle Platform
             </span>
             <div className="h-0.5 w-8 rounded-full" style={{ background: 'rgba(56,189,248,0.5)' }} />
           </div>
 
           {/* Tagline */}
           <p className="text-sm sm:text-base font-bold tracking-wide mb-1" style={{ color: '#FB923C' }}>
-            英語でバトル。実力を証明せよ。
+            歴史でバトル。実力を証明せよ。
           </p>
           <p className="text-xs sm:text-sm text-slate-400 tracking-wider">
             全国のプレイヤーと対戦・ランキング競争
@@ -251,7 +251,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
                   </div>
                   <div className="stat-badge text-center">
                     <p className="text-[10px] font-bold tracking-wider" style={{ color: '#F59E0B' }}>POINTS</p>
-                    <p className="text-2xl font-black" style={{ color: '#F59E0B' }}>{mathPoints.toLocaleString()}</p>
+                    <p className="text-2xl font-black" style={{ color: '#F59E0B' }}>{socialPoints.toLocaleString()}</p>
                   </div>
                 </div>
 

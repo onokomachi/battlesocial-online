@@ -273,7 +273,7 @@ const SpeedDuelBoard: React.FC<SpeedDuelBoardProps> = ({
                        onKeyDown={e => e.key === 'Enter' && handleInputSubmit()}
                        className="flex-1 rounded-xl px-3 py-2.5 text-sm font-bold text-white outline-none"
                        style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(168,85,247,0.4)' }}
-                       placeholder="英語で入力..."
+                       placeholder="答えを入力..."
                        autoComplete="off"
                 />
                 <button onClick={handleInputSubmit}
@@ -311,7 +311,7 @@ const SpeedDuelBoard: React.FC<SpeedDuelBoardProps> = ({
                    onKeyDown={e => e.key === 'Enter' && handleInputSubmit()}
                    className="flex-1 rounded-xl px-3 py-2.5 text-sm font-bold text-white outline-none"
                    style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(245,158,11,0.4)' }}
-                   placeholder="英語で入力..."
+                   placeholder="答えを入力..."
                    autoComplete="off"
             />
             <button onClick={handleInputSubmit}

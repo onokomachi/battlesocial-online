@@ -8,7 +8,7 @@ interface MainMenuProps {
   playerExp: number;
   expForNextLevel: number;
   user?: User | null;
-  mathPoints?: number;
+  socialPoints?: number;
   onLogout?: () => void;
   onOpenRanking?: () => void;
   loginStreak?: number;
@@ -38,7 +38,7 @@ const LetterIcon: React.FC<{ letter: string; color: string }> = ({ letter, color
 // ── Top Bar ────────────────────────────────────────────────────────────────
 const TopBar: React.FC<{
   user: User | null | undefined;
-  mathPoints: number | undefined;
+  socialPoints: number | undefined;
   loginStreak: number | undefined;
   onLogout: (() => void) | undefined;
   onOpenLoginBonus: (() => void) | undefined;
@@ -52,7 +52,7 @@ const TopBar: React.FC<{
   onOpenGameMaster: (() => void) | undefined;
   equippedTitleName: string | null | undefined;
 }> = ({
-  user, mathPoints, loginStreak, onLogout, onOpenLoginBonus,
+  user, socialPoints, loginStreak, onLogout, onOpenLoginBonus,
   onOpenRanking, onOpenQuests, onOpenWeakness, onOpenItemShop,
   onOpenClassBattle, hasStudentProfile, canAccessGameMaster, onOpenGameMaster,
   equippedTitleName,
@@ -79,11 +79,11 @@ const TopBar: React.FC<{
 
     {/* Right actions */}
     <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-      {mathPoints !== undefined && (
+      {socialPoints !== undefined && (
         <div className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg"
              style={{ background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.35)' }}>
           <span className="text-[10px] font-black" style={{ color: '#FB923C' }}>EP</span>
-          <span className="text-sm font-black" style={{ color: '#FB923C' }}>{mathPoints.toLocaleString()}</span>
+          <span className="text-sm font-black" style={{ color: '#FB923C' }}>{socialPoints.toLocaleString()}</span>
         </div>
       )}
       {loginStreak !== undefined && loginStreak >= 1 && (
@@ -135,7 +135,7 @@ const PlayerCard: React.FC<{
   playerLevel: number;
   playerExp: number;
   expForNextLevel: number;
-  mathPoints: number | undefined;
+  socialPoints: number | undefined;
   loginStreak: number | undefined;
   dailyQuestDefs: DailyQuestDef[] | undefined;
   dailyQuestProgress: Record<string, number> | undefined;
@@ -144,7 +144,7 @@ const PlayerCard: React.FC<{
   onOpenLoginBonus: (() => void) | undefined;
   onSelectMode: (mode: GameState) => void;
 }> = ({
-  user, playerLevel, playerExp, expForNextLevel, mathPoints, loginStreak,
+  user, playerLevel, playerExp, expForNextLevel, socialPoints, loginStreak,
   dailyQuestDefs, dailyQuestProgress, dailyQuestDone, onOpenQuests, onOpenLoginBonus,
   onSelectMode,
 }) => {
@@ -179,9 +179,9 @@ const PlayerCard: React.FC<{
             <div className="flex-1 min-w-0">
               <p className="text-sm sm:text-base font-black text-white truncate">{user.displayName}</p>
               <p className="text-[10px] font-bold tracking-wider" style={{ color: '#F97316' }}>PLAYER</p>
-              {mathPoints !== undefined && (
+              {socialPoints !== undefined && (
                 <p className="text-xs sm:text-sm font-black" style={{ color: '#F59E0B' }}>
-                  EP {mathPoints.toLocaleString()}
+                  EP {socialPoints.toLocaleString()}
                 </p>
               )}
             </div>
@@ -332,7 +332,7 @@ const ModeButton: React.FC<{
 // ── Main Component ──────────────────────────────────────────────────────────
 const MainMenu: React.FC<MainMenuProps> = ({
   onSelectMode, playerLevel, playerExp, expForNextLevel,
-  user, mathPoints, onLogout, onOpenRanking,
+  user, socialPoints, onLogout, onOpenRanking,
   loginStreak, onOpenQuests, onOpenLoginBonus,
   canAccessGameMaster, onOpenGameMaster,
   dailyQuestDefs, dailyQuestProgress, dailyQuestDone,
@@ -341,7 +341,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
 }) => (
   <div className="w-full h-full flex flex-col overflow-hidden">
     <TopBar
-      user={user} mathPoints={mathPoints} loginStreak={loginStreak}
+      user={user} socialPoints={socialPoints} loginStreak={loginStreak}
       onLogout={onLogout} onOpenLoginBonus={onOpenLoginBonus}
       onOpenRanking={onOpenRanking} onOpenQuests={onOpenQuests}
       onOpenWeakness={onOpenWeakness} onOpenItemShop={onOpenItemShop}
@@ -358,7 +358,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
            style={{ borderColor: 'rgba(249,115,22,0.12)' }}>
         <PlayerCard
           user={user} playerLevel={playerLevel} playerExp={playerExp}
-          expForNextLevel={expForNextLevel} mathPoints={mathPoints}
+          expForNextLevel={expForNextLevel} socialPoints={socialPoints}
           loginStreak={loginStreak} dailyQuestDefs={dailyQuestDefs}
           dailyQuestProgress={dailyQuestProgress} dailyQuestDone={dailyQuestDone}
           onOpenQuests={onOpenQuests} onOpenLoginBonus={onOpenLoginBonus}
@@ -422,9 +422,9 @@ const MainMenu: React.FC<MainMenuProps> = ({
             </button>
           )}
           {/* Mobile EP (only visible on phones where left col is hidden) */}
-          {user && mathPoints !== undefined && (
+          {user && socialPoints !== undefined && (
             <p className="sm:hidden text-center text-xs font-black" style={{ color: '#F59E0B' }}>
-              EP {mathPoints.toLocaleString()}　Lv.{playerLevel}
+              EP {socialPoints.toLocaleString()}　Lv.{playerLevel}
             </p>
           )}
           {/* Admin panel button (visible to admins) */}

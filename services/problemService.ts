@@ -1,5 +1,5 @@
 
-import { ENGLISH_PROBLEMS } from '../data';
+import { SOCIAL_PROBLEMS } from '../data';
 import { Problem } from '../types';
 import { getDueItems } from './spacedRepetitionService';
 
@@ -8,38 +8,23 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 /**
- * Returns up to 10 shuffled problems for a given category and subTopic.
+ * Returns up to 5 shuffled problems for a given category and subTopic.
  *
- * Grammar subtopics:
+ * Subtopics:
  *   '選択式' → select, '記述式' → input, '並び替え' → sort
- *
- * Vocabulary subtopics (英単語【動詞】 / 英単語【名詞】 / 英単語【形容詞・副詞】):
- *   '英→日（意味選択）' → select where question shows English word (no japanese field)
- *   '日→英（単語選択）' → select where question shows Japanese meaning (has japanese field)
- *   '日→英（単語入力）' → input
  */
 export const getShuffledProblemSet = (category: string, subTopic: string): Problem[] => {
-  const allForCategory = ENGLISH_PROBLEMS[category] || [];
+  const allForCategory = SOCIAL_PROBLEMS[category] || [];
 
-  let filtered: Problem[];
-
-  if (subTopic === '英→日（意味選択）') {
-    filtered = allForCategory.filter(p => p.type === 'select' && !p.data.japanese);
-  } else if (subTopic === '日→英（単語選択）') {
-    filtered = allForCategory.filter(p => p.type === 'select' && !!p.data.japanese);
-  } else if (subTopic === '日→英（単語入力）') {
-    filtered = allForCategory.filter(p => p.type === 'input');
-  } else {
-    const typeMap: Record<string, string> = {
-      '選択式': 'select',
-      '記述式': 'input',
-      '並び替え': 'sort',
-    };
-    const targetType = typeMap[subTopic];
-    filtered = targetType
-      ? allForCategory.filter(p => p.type === targetType)
-      : allForCategory;
-  }
+  const typeMap: Record<string, string> = {
+    '選択式': 'select',
+    '記述式': 'input',
+    '並び替え': 'sort',
+  };
+  const targetType = typeMap[subTopic];
+  const filtered = targetType
+    ? allForCategory.filter(p => p.type === targetType)
+    : allForCategory;
 
   return shuffleArray(filtered).slice(0, 5);
 };
@@ -51,21 +36,21 @@ export const getShuffledProblemSet = (category: string, subTopic: string): Probl
 export const getMultiCategoryProblemSet = (categories: string[], count: number = 5): Problem[] => {
   const allProblems: Problem[] = [];
   for (const cat of categories) {
-    allProblems.push(...(ENGLISH_PROBLEMS[cat] || []));
+    allProblems.push(...(SOCIAL_PROBLEMS[cat] || []));
   }
   return shuffleArray(allProblems).slice(0, count);
 };
 
 /**
  * Returns up to 5 Problems for SRS review (due items).
- * Looks up the full problem from ENGLISH_PROBLEMS by matching answer + questionPreview.
+ * Looks up the full problem from SOCIAL_PROBLEMS by matching answer + questionPreview.
  */
 export const getSrsProblemsForReview = (): Problem[] => {
   const dueItems = getDueItems();
   const problems: Problem[] = [];
 
   for (const item of dueItems) {
-    const categoryProblems = ENGLISH_PROBLEMS[item.category] || [];
+    const categoryProblems = SOCIAL_PROBLEMS[item.category] || [];
     const found =
       categoryProblems.find(p => {
         const ans = Array.isArray(p.answer) ? p.answer.join(' ') : p.answer;

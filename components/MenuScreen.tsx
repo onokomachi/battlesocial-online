@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { CategoryDef, SubCategoryGroup } from '../types';
-import { ENG_CATEGORIES } from '../constants';
+import { SOCIAL_CATEGORIES } from '../constants';
 import { ArchiveIcon, TrophyIcon } from './Icons';
 import type { Firestore } from 'firebase/firestore';
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
@@ -99,7 +99,7 @@ const TopicRankingModal: React.FC<{
   );
 };
 
-const GRADE_LABELS: Record<number, string> = { 1: '中1', 2: '中2', 3: '中3' };
+const GRADE_LABELS: Record<number, string> = { 1: '世界史', 2: '安土〜江戸前', 3: '江戸中後期' };
 const GRADE_COLORS: Record<number, string> = {
   1: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
   2: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
@@ -114,28 +114,28 @@ const GRADE_TAB_COLORS: Record<number, string> = {
 // ── Master mode configs ──────────────────────────────────────────────────────
 const MASTER_MODES = [
   {
-    label: '中1 Master',
+    label: '世界史 Master',
     grade: 1 as const,
     color: '#34D399',
     bgColor: 'rgba(52,211,153,0.1)',
     borderColor: 'rgba(52,211,153,0.35)',
   },
   {
-    label: '中2 Master',
+    label: '安土〜江戸前 Master',
     grade: 2 as const,
     color: '#38BDF8',
     bgColor: 'rgba(56,189,248,0.1)',
     borderColor: 'rgba(56,189,248,0.35)',
   },
   {
-    label: '中3 Master',
+    label: '江戸中後期 Master',
     grade: 3 as const,
     color: '#A78BFA',
     bgColor: 'rgba(167,139,250,0.1)',
     borderColor: 'rgba(167,139,250,0.35)',
   },
   {
-    label: '全学年 Master',
+    label: '全単元 Master',
     grade: null,
     color: '#F97316',
     bgColor: 'rgba(249,115,22,0.1)',
@@ -156,12 +156,12 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onSelectSubTopic, onSelectSpeci
   const [customGradeFilter, setCustomGradeFilter] = useState<1 | 2 | 3 | null>(null);
 
   const filteredCategories = selectedGrade
-    ? ENG_CATEGORIES.filter(cat => cat.grade === selectedGrade)
-    : ENG_CATEGORIES;
+    ? SOCIAL_CATEGORIES.filter(cat => cat.grade === selectedGrade)
+    : SOCIAL_CATEGORIES;
 
   const customFilteredCategories = customGradeFilter
-    ? ENG_CATEGORIES.filter(cat => cat.grade === customGradeFilter)
-    : ENG_CATEGORIES;
+    ? SOCIAL_CATEGORIES.filter(cat => cat.grade === customGradeFilter)
+    : SOCIAL_CATEGORIES;
 
   const toggleCategory = (name: string) => {
     setCheckedCategories(prev => {
@@ -173,7 +173,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onSelectSubTopic, onSelectSpeci
   };
 
   const selectAllInGrade = (grade: 1 | 2 | 3 | null) => {
-    const cats = grade ? ENG_CATEGORIES.filter(c => c.grade === grade) : ENG_CATEGORIES;
+    const cats = grade ? SOCIAL_CATEGORIES.filter(c => c.grade === grade) : SOCIAL_CATEGORIES;
     setCheckedCategories(prev => {
       const next = new Set(prev);
       cats.forEach(c => next.add(c.name));
@@ -185,9 +185,10 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onSelectSubTopic, onSelectSpeci
 
   const handleMasterMode = (grade: 1 | 2 | 3 | null) => {
     const cats = grade
-      ? ENG_CATEGORIES.filter(c => c.grade === grade).map(c => c.name)
-      : ENG_CATEGORIES.map(c => c.name);
-    const label = grade ? `中${grade} Master` : '全学年 Master';
+      ? SOCIAL_CATEGORIES.filter(c => c.grade === grade).map(c => c.name)
+      : SOCIAL_CATEGORIES.map(c => c.name);
+    const gradeLabel = grade === 1 ? '世界史' : grade === 2 ? '安土〜江戸前' : grade === 3 ? '江戸中後期' : null;
+    const label = gradeLabel ? `${gradeLabel} Master` : '全単元 Master';
     onSelectSpecial(cats, label);
   };
 
@@ -254,7 +255,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onSelectSubTopic, onSelectSpeci
                 onClick={() => { setSelectedGrade(null); setSelectedCategory(null); }}
                 className={`px-3 py-1.5 rounded-lg font-bold text-xs border transition-all ${
                   selectedGrade === null ? 'bg-cyan-600 text-white border-cyan-400' : 'bg-transparent text-cyan-600 border-cyan-800 hover:border-cyan-500 hover:text-cyan-400'
-                }`}>全学年</button>
+                }`}>全単元</button>
               {([1, 2, 3] as const).map(g => (
                 <button key={g}
                   onClick={() => { setSelectedGrade(g); setSelectedCategory(null); }}
@@ -368,8 +369,8 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onSelectSubTopic, onSelectSpeci
                     <p className="text-sm font-black text-white">{mode.label}</p>
                     <p className="text-[10px] text-slate-500">
                       {mode.grade
-                        ? `中${mode.grade}の全カテゴリからランダム5問`
-                        : '全学年からランダム5問'}
+                        ? `${mode.label.replace(' Master', '')}の全カテゴリからランダム5問`
+                        : '全単元からランダム5問'}
                     </p>
                   </div>
                   <svg className="w-4 h-4 text-slate-600 group-hover:text-white group-hover:translate-x-0.5 transition-all"

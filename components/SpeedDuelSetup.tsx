@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import type { BattleFormat, BattleMode, EnglishCategory, SpeedDuelSetup } from '../types';
+import type { BattleFormat, BattleMode, SocialCategory, SpeedDuelSetup } from '../types';
 import type { User } from 'firebase/auth';
-import { ENG_CATEGORIES } from '../constants';
+import { SOCIAL_CATEGORIES } from '../constants';
 
 const BATTLE_FORMATS: { key: BattleFormat; label: string; desc: string }[] = [
   { key: 'best_of_3',    label: '3本勝負',       desc: '先に2勝で決着' },
@@ -23,11 +23,11 @@ interface Props {
 }
 
 const SpeedDuelSetup: React.FC<Props> = ({ onStart, onBack, user }) => {
-  const [selectedCategories, setSelectedCategories] = useState<Set<EnglishCategory>>(new Set());
+  const [selectedCategories, setSelectedCategories] = useState<Set<SocialCategory>>(new Set());
   const [battleFormat, setBattleFormat] = useState<BattleFormat>('best_of_5');
   const [mode, setMode] = useState<BattleMode>('cpu');
 
-  const toggleCategory = (cat: EnglishCategory) => {
+  const toggleCategory = (cat: SocialCategory) => {
     setSelectedCategories(prev => {
       const next = new Set(prev);
       if (next.has(cat)) next.delete(cat);
@@ -37,7 +37,7 @@ const SpeedDuelSetup: React.FC<Props> = ({ onStart, onBack, user }) => {
   };
 
   const selectGrade = (grade: 1 | 2 | 3) => {
-    const gradeCats = ENG_CATEGORIES.filter(c => c.grade === grade).map(c => c.name as EnglishCategory);
+    const gradeCats = SOCIAL_CATEGORIES.filter(c => c.grade === grade).map(c => c.name as SocialCategory);
     setSelectedCategories(prev => {
       const next = new Set(prev);
       const allSelected = gradeCats.every(c => next.has(c));
@@ -48,10 +48,10 @@ const SpeedDuelSetup: React.FC<Props> = ({ onStart, onBack, user }) => {
   };
 
   const selectAll = () => {
-    if (selectedCategories.size === ENG_CATEGORIES.length) {
+    if (selectedCategories.size === SOCIAL_CATEGORIES.length) {
       setSelectedCategories(new Set());
     } else {
-      setSelectedCategories(new Set(ENG_CATEGORIES.map(c => c.name as EnglishCategory)));
+      setSelectedCategories(new Set(SOCIAL_CATEGORIES.map(c => c.name as SocialCategory)));
     }
   };
 
@@ -95,8 +95,8 @@ const SpeedDuelSetup: React.FC<Props> = ({ onStart, onBack, user }) => {
             <div className="flex gap-2">
               {gradeGroups.map(g => {
                 const col = GRADE_COLORS[g];
-                const gradeCats = ENG_CATEGORIES.filter(c => c.grade === g);
-                const allSelected = gradeCats.every(c => selectedCategories.has(c.name as EnglishCategory));
+                const gradeCats = SOCIAL_CATEGORIES.filter(c => c.grade === g);
+                const allSelected = gradeCats.every(c => selectedCategories.has(c.name as SocialCategory));
                 return (
                   <button key={g} onClick={() => selectGrade(g)}
                           className="text-[10px] font-bold px-2 py-1 rounded-lg transition-all"
@@ -105,15 +105,15 @@ const SpeedDuelSetup: React.FC<Props> = ({ onStart, onBack, user }) => {
                             background: allSelected ? col.border : col.bg,
                             border: `1px solid ${col.border}`,
                           }}>
-                    中{g}
+                    {g === 1 ? '世界史' : g === 2 ? '安土〜江戸前' : '江戸中後期'}
                   </button>
                 );
               })}
               <button onClick={selectAll}
                       className="text-[10px] font-bold px-2 py-1 rounded-lg transition-all"
                       style={{
-                        color: selectedCategories.size === ENG_CATEGORIES.length ? '#fff' : '#94A3B8',
-                        background: selectedCategories.size === ENG_CATEGORIES.length ? 'rgba(148,163,184,0.3)' : 'rgba(148,163,184,0.1)',
+                        color: selectedCategories.size === SOCIAL_CATEGORIES.length ? '#fff' : '#94A3B8',
+                        background: selectedCategories.size === SOCIAL_CATEGORIES.length ? 'rgba(148,163,184,0.3)' : 'rgba(148,163,184,0.1)',
                         border: '1px solid rgba(148,163,184,0.3)',
                       }}>
                 全て
@@ -125,7 +125,7 @@ const SpeedDuelSetup: React.FC<Props> = ({ onStart, onBack, user }) => {
           <div className="space-y-3">
             {gradeGroups.map(g => {
               const col = GRADE_COLORS[g];
-              const gradeCats = ENG_CATEGORIES.filter(c => c.grade === g);
+              const gradeCats = SOCIAL_CATEGORIES.filter(c => c.grade === g);
               return (
                 <div key={g}>
                   <p className="text-[9px] font-black tracking-widest mb-1.5" style={{ color: col.text }}>
@@ -133,10 +133,10 @@ const SpeedDuelSetup: React.FC<Props> = ({ onStart, onBack, user }) => {
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {gradeCats.map(cat => {
-                      const selected = selectedCategories.has(cat.name as EnglishCategory);
+                      const selected = selectedCategories.has(cat.name as SocialCategory);
                       return (
                         <button key={cat.name}
-                                onClick={() => toggleCategory(cat.name as EnglishCategory)}
+                                onClick={() => toggleCategory(cat.name as SocialCategory)}
                                 className="text-[10px] sm:text-xs font-bold px-2 py-1 rounded-lg transition-all"
                                 style={{
                                   color: selected ? '#fff' : col.text,

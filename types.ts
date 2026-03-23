@@ -1,53 +1,23 @@
 
-// types.ts - BattleENG Online (英語カードバトル)
+// types.ts - BattleSocial Online (社会科カードバトル)
 
-// --- English Question Types ---
+// --- Social Studies Question Types ---
 export type QuestionType = 'select' | 'input' | 'sort';
 
-export type EnglishCategory =
-  // ── 中学1年生 文法 ──────────────────────────────────────
-  | 'be動詞'
-  | '一般動詞'
-  | '代名詞'
-  | '名詞の複数形'
-  | '現在進行形'
-  | '過去形'
-  | '過去進行形'
-  | '疑問詞'
-  | '命令文'
-  | '感嘆文'
-  | 'there is'
-  // ── 中学2年生 文法 ──────────────────────────────────────
-  | '未来'
-  | '動名詞'
-  | '不定詞'
-  | '助動詞【must】'
-  | '助動詞【have to】'
-  | '助動詞【その他】'
-  | '比較'
-  | '接続詞'
-  | '受け身'
-  | '現在完了'
-  // ── 中学3年生 文法 ──────────────────────────────────────
-  | '現在完了進行形'
-  | '不定詞2'
-  | 'その他'
-  | '関係代名詞'
-  | '分詞の後置修飾'
-  | '間接疑問文'
-  | '仮定法'
-  // ── 英単語 中1 ───────────────────────────────────────────
-  | '英単語【動詞】中1'
-  | '英単語【名詞】中1'
-  | '英単語【形容詞・副詞】中1'
-  // ── 英単語 中2 ───────────────────────────────────────────
-  | '英単語【動詞】中2'
-  | '英単語【名詞】中2'
-  | '英単語【形容詞・副詞】中2'
-  // ── 英単語 中3 ───────────────────────────────────────────
-  | '英単語【動詞】中3'
-  | '英単語【名詞】中3'
-  | '英単語【形容詞・副詞】中3';
+export type SocialCategory =
+  // ── 世界史 ────────────────────────────────────────────────
+  | 'ヨーロッパ近世'
+  | '17,18世紀ヨーロッパ'
+  // ── 日本史・安土桃山〜江戸前期 ──────────────────────────
+  | '安土桃山時代'
+  | '安土桃山の文化'
+  | '江戸時代のしくみ'
+  | '江戸初期の外交'
+  // ── 日本史・江戸中後期 ──────────────────────────────────
+  | '江戸の産業と都市'
+  | '元禄〜享保'
+  | '田沼〜寛政'
+  | '文化文政〜天保';
 
 // --- Student Profile (学年・組・番号) ---
 export interface StudentProfile {
@@ -80,7 +50,7 @@ export interface UserProfile {
   displayName: string | null;
   email: string | null;
   photoURL: string | null;
-  engPoints: number;        // mathPoints → engPoints
+  socialPoints: number;     // ポイント（旧: engPoints / mathPoints）
   playerLevel: number;
   playerExp: number;
   totalWins: number;
@@ -166,12 +136,12 @@ export interface Ability {
   description: string;
 }
 
-// 英語問題データ構造
+// 社会科問題データ構造
 export interface Problem {
   type: QuestionType;
   data: {
     question: string;
-    japanese?: string;       // 和訳ヒント
+    japanese?: string;       // 補足ヒント（使用しない場合あり）
     options?: string[];      // select/sort で使用する選択肢
   };
   answer: string | string[]; // select/input は string, sort は string[]
@@ -182,7 +152,7 @@ export type ProblemSet = Record<string, Problem[]>;
 // カードデータ（バトル用）
 export interface ProblemCard {
   id: number;
-  mainCategory: EnglishCategory; // "未来", "受け身" 等の文法カテゴリ
+  mainCategory: SocialCategory;  // "安土桃山時代" 等の歴史カテゴリ
   category: string;              // サブ分類（問題タイプ: "select"/"input"/"sort"）
   difficulty: number;            // select=2, input=3, sort=4
   problem: Problem;
@@ -202,7 +172,7 @@ export type SpeedDuelPhase =
   | 'game_over';
 
 export interface SpeedDuelSetup {
-  categories: EnglishCategory[];
+  categories: SocialCategory[];
   format: BattleFormat;
   mode: BattleMode;
 }
@@ -225,7 +195,7 @@ export interface SubCategoryGroup {
 }
 export interface CategoryDef {
     name: string;
-    grade: 1 | 2 | 3;  // 学年 (1=中1, 2=中2, 3=中3)
+    grade: 1 | 2 | 3;  // グループ (1=世界史, 2=日本史・安土桃山〜江戸前期, 3=日本史・江戸中後期)
     groups: SubCategoryGroup[];
 }
 

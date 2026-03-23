@@ -43,13 +43,13 @@ const checkFirestoreConnection = async (): Promise<boolean> => {
     const msg = e?.message || '';
     if (msg.includes('not found') || msg.includes('404') || e?.code === 'not-found') {
       console.error(
-        '%c[BattleENG] Firestoreデータベースが見つかりません。\n' +
+        '%c[BattleSocial] Firestoreデータベースが見つかりません。\n' +
         'Firebase Console → Firestore Database → 「データベースを作成」を実行してください。\n' +
         'https://console.firebase.google.com/project/battleeng-online/firestore',
         'color: #ff6b6b; font-size: 14px; font-weight: bold;'
       );
     } else {
-      console.warn('[BattleENG] Firestore connectivity check failed:', msg);
+      console.warn('[BattleSocial] Firestore connectivity check failed:', msg);
     }
     return false;
   }
@@ -57,7 +57,7 @@ const checkFirestoreConnection = async (): Promise<boolean> => {
 
 // Fire connectivity check (non-blocking)
 checkFirestoreConnection().then(ok => {
-  if (ok) console.log('[BattleENG] Firestore connected');
+  if (ok) console.log('[BattleSocial] Firestore connected');
 });
 
 // Analytics - optional, should not block auth

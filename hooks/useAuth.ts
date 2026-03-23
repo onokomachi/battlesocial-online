@@ -107,7 +107,7 @@ export const useAuth = () => {
               displayName: u.displayName,
               email: u.email,
               photoURL: u.photoURL,
-              mathPoints: 1000,
+              socialPoints: 1000,
               playerLevel: 1,
               playerExp: 0,
               totalWins: 0,

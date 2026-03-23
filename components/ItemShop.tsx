@@ -12,7 +12,7 @@ import { SHOP_ITEMS } from '../constants';
 import type { ShopItemDef } from '../types';
 
 interface ItemShopProps {
-  mathPoints: number;
+  socialPoints: number;
   ownedItems: Set<string>;
   equippedTitle: string | null;
   onPurchase: (item: ShopItemDef) => void;
@@ -21,7 +21,7 @@ interface ItemShopProps {
 }
 
 const ItemShop: React.FC<ItemShopProps> = ({
-  mathPoints, ownedItems, equippedTitle, onPurchase, onEquipTitle, onClose,
+  socialPoints, ownedItems, equippedTitle, onPurchase, onEquipTitle, onClose,
 }) => {
   const [tab, setTab] = useState<'title' | 'streak_shield' | 'theme'>('title');
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
@@ -30,7 +30,7 @@ const ItemShop: React.FC<ItemShopProps> = ({
 
   const handleBuy = (item: ShopItemDef) => {
     if (ownedItems.has(item.id)) return;
-    if (mathPoints < item.cost) {
+    if (socialPoints < item.cost) {
       setPurchaseMessage('MPが足りません');
       setTimeout(() => setPurchaseMessage(null), 2000);
       return;
@@ -62,7 +62,7 @@ const ItemShop: React.FC<ItemShopProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <div className="bg-slate-900/60 rounded-lg px-3 py-1.5 border border-amber-900/30">
-                <span className="text-amber-400 font-black font-mono text-sm">{mathPoints.toLocaleString()} MP</span>
+                <span className="text-amber-400 font-black font-mono text-sm">{socialPoints.toLocaleString()} MP</span>
               </div>
               <button
                 onClick={onClose}
@@ -103,7 +103,7 @@ const ItemShop: React.FC<ItemShopProps> = ({
           {filteredItems.map(item => {
             const owned = ownedItems.has(item.id);
             const equipped = item.type === 'title' && equippedTitle === item.id;
-            const canAfford = mathPoints >= item.cost;
+            const canAfford = socialPoints >= item.cost;
 
             return (
               <div

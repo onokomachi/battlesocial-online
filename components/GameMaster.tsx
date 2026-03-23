@@ -1,5 +1,5 @@
 /**
- * GameMaster.tsx - BattleENG Admin Panel
+ * GameMaster.tsx - BattleSocial Admin Panel
  *
  * 管理機能:
  *  - ユーザー管理 (戦績/レベル確認・リセット・削除)
@@ -24,7 +24,7 @@ interface UserData {
   playerExp: number;
   totalWins: number;
   totalMatches: number;
-  mathPoints: number;
+  socialPoints: number;
   ownedCardIds: number[];
   createdAt: any;
   totalCorrectAnswers?: number;
@@ -153,7 +153,7 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
     const totalCorrect = classStudents.reduce((s, u) => s + (u.totalCorrectAnswers || 0), 0);
     const totalMatches = classStudents.reduce((s, u) => s + (u.totalMatches || 0), 0);
     const totalWins = classStudents.reduce((s, u) => s + (u.totalWins || 0), 0);
-    const avgMP = classStudents.reduce((s, u) => s + (u.mathPoints || 0), 0) / totalStudents;
+    const avgMP = classStudents.reduce((s, u) => s + (u.socialPoints || 0), 0) / totalStudents;
     const activeLast7d = classStudents.filter(u => {
       if (!u.lastLoginDate) return false;
       const last = new Date(u.lastLoginDate).getTime();
@@ -189,8 +189,8 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
     try {
       const ref = doc(db, 'users', userId);
       const snap = await getDoc(ref);
-      const current = snap.data()?.mathPoints || 0;
-      await updateDoc(ref, { mathPoints: current + amount });
+      const current = snap.data()?.socialPoints || 0;
+      await updateDoc(ref, { socialPoints: current + amount });
       alert(`${amount} MPを付与しました。`);
     } catch (e) { console.error(e); alert('エラー'); }
   };
@@ -402,7 +402,7 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     {[
                       { label: 'レベル', value: classDetailUser.playerLevel || 1, color: 'text-cyan-400' },
-                      { label: 'MP', value: (classDetailUser.mathPoints || 0).toLocaleString(), color: 'text-amber-400' },
+                      { label: 'MP', value: (classDetailUser.socialPoints || 0).toLocaleString(), color: 'text-amber-400' },
                       { label: '勝利数', value: classDetailUser.totalWins || 0, color: 'text-green-400' },
                       { label: '対戦数', value: classDetailUser.totalMatches || 0, color: 'text-blue-400' },
                       { label: '勝率', value: winRate(classDetailUser.totalWins || 0, classDetailUser.totalMatches || 0), color: 'text-amber-300' },
@@ -502,7 +502,7 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
                               <span className="text-gray-500 text-xs">/{u.totalMatches || 0}</span>
                               <span className="text-green-400 text-xs ml-1">{winRate(u.totalWins || 0, u.totalMatches || 0)}</span>
                             </td>
-                            <td className="p-3 text-center text-amber-300 font-mono text-sm">{(u.mathPoints || 0).toLocaleString()}</td>
+                            <td className="p-3 text-center text-amber-300 font-mono text-sm">{(u.socialPoints || 0).toLocaleString()}</td>
                             <td className="p-3 text-center">
                               {(u.loginStreak || 0) >= 2 ? (
                                 <span className="text-orange-400 font-bold text-sm">{u.loginStreak}日</span>
@@ -577,7 +577,7 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
                         <br />
                         <span className="text-green-400 text-xs">{winRate(u.totalWins || 0, u.totalMatches || 0)}</span>
                       </td>
-                      <td className="p-3 text-center text-amber-300 font-mono text-sm">{(u.mathPoints || 0).toLocaleString()}</td>
+                      <td className="p-3 text-center text-amber-300 font-mono text-sm">{(u.socialPoints || 0).toLocaleString()}</td>
                       <td className="p-3 text-center text-xs text-gray-500">{formatDate(u.createdAt)}</td>
                       <td className="p-3 text-center">
                         <div className="flex gap-1 justify-center flex-wrap">
