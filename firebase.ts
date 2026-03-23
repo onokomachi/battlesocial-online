@@ -5,15 +5,15 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore, enableNetwork, disableNetwork } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// battleeng-online Firebase project config (from Firebase console)
+// battlesocial-online Firebase project config (from Firebase console)
 const firebaseConfig = {
-  apiKey: "AIzaSyDLsEB_zROfusa19Hzy5gUFF6v5ilb8R64",
-  authDomain: "battleeng-online.firebaseapp.com",
-  projectId: "battleeng-online",
-  storageBucket: "battleeng-online.firebasestorage.app",
-  messagingSenderId: "103551205143",
-  appId: "1:103551205143:web:430929a347c333bbe54152",
-  measurementId: "G-WPGXMSNQN1"
+  apiKey: "AIzaSyC8rc1q0QPOa0L2vLtC_vY1N9YW2w68BwE",
+  authDomain: "battlesocial-online.firebaseapp.com",
+  projectId: "battlesocial-online",
+  storageBucket: "battlesocial-online.firebasestorage.app",
+  messagingSenderId: "587978594645",
+  appId: "1:587978594645:web:c14a78a8d64c41355a37dc",
+  measurementId: "G-0GR9MLJ3YP"
 };
 
 let app: any, auth: any, db: any, storage: any, googleProvider: any, analytics: any;
