@@ -99,7 +99,7 @@ export const useGamification = (user: User | null) => {
       if (user && db) {
         updateDoc(doc(db, 'users', user.uid), {
           earnedBadgeIds: arrayUnion(badgeId),
-          mathPoints: increment(100),
+          socialPoints: increment(100),
         }).catch(() => {});
       }
       return new Set(prev).add(badgeId);
@@ -128,7 +128,7 @@ export const useGamification = (user: User | null) => {
             newDone.add(q.id);
             addMp(q.reward.mp);
             if (user && db) {
-              updateDoc(doc(db, 'users', user.uid), { mathPoints: increment(q.reward.mp) }).catch(() => {});
+              updateDoc(doc(db, 'users', user.uid), { socialPoints: increment(q.reward.mp) }).catch(() => {});
             }
           }
         });
@@ -154,7 +154,7 @@ export const useGamification = (user: User | null) => {
             newDone.add(q.id);
             addMp(q.reward.mp);
             if (user && db) {
-              updateDoc(doc(db, 'users', user.uid), { mathPoints: increment(q.reward.mp) }).catch(() => {});
+              updateDoc(doc(db, 'users', user.uid), { socialPoints: increment(q.reward.mp) }).catch(() => {});
             }
           }
         });
@@ -213,7 +213,7 @@ export const useGamification = (user: User | null) => {
     setOwnedShopItems(prev => new Set([...prev, item.id]));
     if (user && db) {
       updateDoc(doc(db, 'users', user.uid), {
-        mathPoints: increment(-item.cost),
+        socialPoints: increment(-item.cost),
       }).catch(() => {});
     }
     return true;

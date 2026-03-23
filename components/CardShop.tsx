@@ -5,58 +5,34 @@ import Card, { CardBack } from './Card';
 import { BackIcon } from './Icons';
 
 interface CardShopProps {
-  mathPoints: number;
+  socialPoints: number;
   onBuyPack: (categories: string[], cost: number, packType: string) => ProblemCard[] | null;
   onExit: () => void;
 }
 
 const PACKS = [
   {
-    type: '中1文法パック',
+    type: '世界史パック',
     cost: 800,
-    desc: 'be動詞・一般動詞・過去形・疑問詞など中1文法を網羅',
-    categories: ['be動詞','一般動詞','代名詞','名詞の複数形','現在進行形','過去形','過去進行形','疑問詞','命令文','感嘆文','there is'],
+    desc: 'ヨーロッパ近世・17,18世紀ヨーロッパを網羅',
+    categories: ['ヨーロッパ近世', '17,18世紀ヨーロッパ'],
     color: '#38BDF8',
     grade: 1,
   },
   {
-    type: '中2文法パック',
+    type: '安土桃山〜江戸前期パック',
     cost: 800,
-    desc: '不定詞・助動詞・比較・現在完了など中2文法を網羅',
-    categories: ['未来','動名詞','不定詞','助動詞【その他】','助動詞【must】','助動詞【have to】','比較','接続詞','受け身','現在完了'],
+    desc: '安土桃山時代・文化・江戸のしくみ・外交を網羅',
+    categories: ['安土桃山時代', '安土桃山の文化', '江戸時代のしくみ', '江戸初期の外交'],
     color: '#F97316',
     grade: 2,
   },
   {
-    type: '中3文法パック',
+    type: '江戸中後期パック',
     cost: 800,
-    desc: '関係代名詞・分詞・仮定法など中3文法を網羅',
-    categories: ['現在完了進行形','不定詞2','その他','関係代名詞','分詞の後置修飾','間接疑問文','仮定法'],
+    desc: '江戸の産業・元禄享保・田沼寛政・文化文政天保を網羅',
+    categories: ['江戸の産業と都市', '元禄〜享保', '田沼〜寛政', '文化文政〜天保'],
     color: '#A78BFA',
-    grade: 3,
-  },
-  {
-    type: '英単語パック 中1',
-    cost: 600,
-    desc: '中1レベルの動詞・名詞・形容詞・副詞',
-    categories: ['英単語【動詞】中1','英単語【名詞】中1','英単語【形容詞・副詞】中1'],
-    color: '#34D399',
-    grade: 1,
-  },
-  {
-    type: '英単語パック 中2',
-    cost: 600,
-    desc: '中2レベルの動詞・名詞・形容詞・副詞',
-    categories: ['英単語【動詞】中2','英単語【名詞】中2','英単語【形容詞・副詞】中2'],
-    color: '#FBBF24',
-    grade: 2,
-  },
-  {
-    type: '英単語パック 中3',
-    cost: 600,
-    desc: '中3レベルの動詞・名詞・形容詞・副詞',
-    categories: ['英単語【動詞】中3','英単語【名詞】中3','英単語【形容詞・副詞】中3'],
-    color: '#F472B6',
     grade: 3,
   },
 ];
@@ -127,7 +103,7 @@ const PackOpeningView: React.FC<{
   );
 };
 
-const CardShop: React.FC<CardShopProps> = ({ mathPoints, onBuyPack, onExit }) => {
+const CardShop: React.FC<CardShopProps> = ({ socialPoints, onBuyPack, onExit }) => {
   const [packToOpen, setPackToOpen] = useState<ProblemCard[] | null>(null);
 
   const handleBuy = (categories: string[], cost: number, type: string) => {
@@ -169,7 +145,7 @@ const CardShop: React.FC<CardShopProps> = ({ mathPoints, onBuyPack, onExit }) =>
              style={{ borderColor: 'rgba(249,115,22,0.3)' }}>
           <span className="text-[10px] font-bold block" style={{ color: '#F97316' }}>EP</span>
           <span className="text-base sm:text-xl font-black font-mono" style={{ color: '#FB923C' }}>
-            {mathPoints.toLocaleString()}
+            {socialPoints.toLocaleString()}
           </span>
         </div>
       </div>
@@ -206,10 +182,10 @@ const CardShop: React.FC<CardShopProps> = ({ mathPoints, onBuyPack, onExit }) =>
 
               <button
                 onClick={e => { e.stopPropagation(); handleBuy(pack.categories, pack.cost, pack.type); }}
-                disabled={mathPoints < pack.cost}
+                disabled={socialPoints < pack.cost}
                 className="w-full py-1.5 sm:py-2 rounded-lg font-black text-[10px] sm:text-xs tracking-wider
                            transition-all duration-200"
-                style={mathPoints < pack.cost
+                style={socialPoints < pack.cost
                   ? { background: 'rgba(255,255,255,0.04)', color: '#475569', border: '1px solid rgba(255,255,255,0.08)', cursor: 'not-allowed' }
                   : { background: `${pack.color}15`, color: pack.color, border: `1px solid ${pack.color}40` }}
               >

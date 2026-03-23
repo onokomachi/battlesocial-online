@@ -1,6 +1,6 @@
 
-import type { Problem, ProblemCard, CategoryDef, EnglishCategory, Ability, AbilityType, DailyQuestDef, BadgeDef, ShopItemDef } from './types';
-import { ENGLISH_PROBLEMS } from './data/index';
+import type { Problem, ProblemCard, CategoryDef, SocialCategory, Ability, AbilityType, DailyQuestDef, BadgeDef, ShopItemDef } from './types';
+import { SOCIAL_PROBLEMS } from './data/index';
 
 export const MAX_SCORE = 5;
 export const DECK_SIZE = 20;
@@ -33,225 +33,61 @@ export const DECK_CONSTRAINTS: Record<number, number> = {
   5: 3,
 };
 
-// 英語文法カテゴリ × 問題タイプ別に構造化（学年別）
-export const ENG_CATEGORIES: CategoryDef[] = [
-  // ── 中学1年生 文法 ──────────────────────────────────────
+// 社会科カテゴリ × 問題タイプ別に構造化（グループ別）
+// grade: 1=世界史, 2=日本史・安土桃山〜江戸前期, 3=日本史・江戸中後期
+export const SOCIAL_CATEGORIES: CategoryDef[] = [
+  // ── 世界史 ────────────────────────────────────────────────
   {
-    name: 'be動詞',
+    name: 'ヨーロッパ近世',
     grade: 1,
-    groups: [{ name: 'am / is / are の肯定・否定・疑問', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: 'ヨーロッパ近世', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
-    name: '一般動詞',
+    name: '17,18世紀ヨーロッパ',
     grade: 1,
-    groups: [{ name: '一般動詞の肯定・否定・疑問', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '17,18世紀ヨーロッパ', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
+  // ── 日本史・安土桃山〜江戸前期 ──────────────────────────
   {
-    name: '代名詞',
-    grade: 1,
-    groups: [{ name: '主格・目的格・所有格', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '名詞の複数形',
-    grade: 1,
-    groups: [{ name: '規則変化・不規則変化', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '現在進行形',
-    grade: 1,
-    groups: [{ name: 'be動詞 + -ing 形', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '過去形',
-    grade: 1,
-    groups: [{ name: '規則動詞・不規則動詞の過去形', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '過去進行形',
-    grade: 1,
-    groups: [{ name: 'was / were + -ing 形', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '疑問詞',
-    grade: 1,
-    groups: [{ name: 'what / who / when / where / why / how', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '命令文',
-    grade: 1,
-    groups: [{ name: '肯定命令・否定命令・Let\'s', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '感嘆文',
-    grade: 1,
-    groups: [{ name: 'What a ...! / How ...!', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: 'there is',
-    grade: 1,
-    groups: [{ name: 'there is/are 構文', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  // ── 中学2年生 文法 ──────────────────────────────────────
-  {
-    name: '未来',
+    name: '安土桃山時代',
     grade: 2,
-    groups: [{ name: 'will / be going to', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '安土桃山時代', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
-    name: '動名詞',
+    name: '安土桃山の文化',
     grade: 2,
-    groups: [{ name: '動名詞の用法', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '安土桃山の文化', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
-    name: '不定詞',
+    name: '江戸時代のしくみ',
     grade: 2,
-    groups: [{ name: '不定詞3用法', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '江戸時代のしくみ', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
-    name: '助動詞【must】',
+    name: '江戸初期の外交',
     grade: 2,
-    groups: [{ name: 'must / have to', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '江戸初期の外交', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
+  // ── 日本史・江戸中後期 ──────────────────────────────────
   {
-    name: '助動詞【have to】',
-    grade: 2,
-    groups: [{ name: 'have to の用法', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '助動詞【その他】',
-    grade: 2,
-    groups: [{ name: 'can / may / should / shall', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '比較',
-    grade: 2,
-    groups: [{ name: '比較級・最上級・原級', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '接続詞',
-    grade: 2,
-    groups: [{ name: '接続詞の用法', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '受け身',
-    grade: 2,
-    groups: [{ name: '受動態', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '現在完了',
-    grade: 2,
-    groups: [{ name: '現在完了の3用法', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  // ── 中学3年生 文法 ──────────────────────────────────────
-  {
-    name: '現在完了進行形',
+    name: '江戸の産業と都市',
     grade: 3,
-    groups: [{ name: '現在完了進行形', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '江戸の産業と都市', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
-    name: '不定詞2',
+    name: '元禄〜享保',
     grade: 3,
-    groups: [{ name: '不定詞の発展', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '元禄〜享保', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
-    name: 'その他',
+    name: '田沼〜寛政',
     grade: 3,
-    groups: [{ name: 'その他の文法', subtopics: ['選択式', '記述式', '並び替え'] }],
+    groups: [{ name: '田沼〜寛政', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
-    name: '関係代名詞',
+    name: '文化文政〜天保',
     grade: 3,
-    groups: [{ name: 'who / which / that', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '分詞の後置修飾',
-    grade: 3,
-    groups: [{ name: '現在分詞・過去分詞', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '間接疑問文',
-    grade: 3,
-    groups: [{ name: '疑問詞 + 主語 + 動詞', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  {
-    name: '仮定法',
-    grade: 3,
-    groups: [{ name: 'if / wish 仮定法', subtopics: ['選択式', '記述式', '並び替え'] }],
-  },
-  // ── 英単語 中1 ────────────────────────────────────────────
-  {
-    name: '英単語【動詞】中1',
-    grade: 1,
-    groups: [{
-      name: '動詞の英単語（中1）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  {
-    name: '英単語【名詞】中1',
-    grade: 1,
-    groups: [{
-      name: '名詞の英単語（中1）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  {
-    name: '英単語【形容詞・副詞】中1',
-    grade: 1,
-    groups: [{
-      name: '形容詞・副詞の英単語（中1）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  // ── 英単語 中2 ────────────────────────────────────────────
-  {
-    name: '英単語【動詞】中2',
-    grade: 2,
-    groups: [{
-      name: '動詞の英単語（中2）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  {
-    name: '英単語【名詞】中2',
-    grade: 2,
-    groups: [{
-      name: '名詞の英単語（中2）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  {
-    name: '英単語【形容詞・副詞】中2',
-    grade: 2,
-    groups: [{
-      name: '形容詞・副詞の英単語（中2）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  // ── 英単語 中3 ────────────────────────────────────────────
-  {
-    name: '英単語【動詞】中3',
-    grade: 3,
-    groups: [{
-      name: '動詞の英単語（中3）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  {
-    name: '英単語【名詞】中3',
-    grade: 3,
-    groups: [{
-      name: '名詞の英単語（中3）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
-  },
-  {
-    name: '英単語【形容詞・副詞】中3',
-    grade: 3,
-    groups: [{
-      name: '形容詞・副詞の英単語（中3）',
-      subtopics: ['英→日（意味選択）', '日→英（単語選択）', '日→英（単語入力）'],
-    }],
+    groups: [{ name: '文化文政〜天保', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
 ];
 
@@ -265,22 +101,16 @@ const assignAbility = (card: ProblemCard): Ability | undefined => {
   // select(difficulty=2)はアビリティなし。input/sort のみ
   if (card.difficulty < 3) return undefined;
   const abilityMap: { [key: string]: AbilityType[] } = {
-    // 中1
-    'be動詞':         ['SCORE_BOOST'],
-    '一般動詞':       ['SCORE_BOOST'],
-    '現在進行形':     ['TIME_PRESSURE'],
-    '過去形':         ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
-    '過去進行形':     ['TIME_PRESSURE'],
-    // 中2
-    '受け身':         ['DEFENSIVE_STANCE'],
-    '現在完了':       ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
-    '現在完了進行形': ['TIME_PRESSURE'],
-    '比較':           ['TIME_PRESSURE', 'SCORE_BOOST'],
-    '不定詞':         ['SCORE_BOOST'],
-    '不定詞2':        ['SCORE_BOOST'],
-    '動名詞':         ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
-    '接続詞':         ['DEFENSIVE_STANCE'],
-    '未来':           ['SCORE_BOOST'],
+    'ヨーロッパ近世':       ['SCORE_BOOST'],
+    '安土桃山時代':         ['SCORE_BOOST'],
+    '安土桃山の文化':       ['TIME_PRESSURE'],
+    '江戸時代のしくみ':     ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
+    '江戸初期の外交':       ['TIME_PRESSURE'],
+    '江戸の産業と都市':     ['DEFENSIVE_STANCE'],
+    '元禄〜享保':           ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
+    '田沼〜寛政':           ['TIME_PRESSURE'],
+    '文化文政〜天保':       ['TIME_PRESSURE', 'SCORE_BOOST'],
+    '17,18世紀ヨーロッパ':  ['SCORE_BOOST'],
   };
   const possibleTypes = abilityMap[card.mainCategory];
   if (!possibleTypes) return undefined;
@@ -297,7 +127,7 @@ const processProblems = (): ProblemCard[] => {
   const allProblems: ProblemCard[] = [];
   let idCounter = 0;
 
-  for (const [mainCat, problems] of Object.entries(ENGLISH_PROBLEMS)) {
+  for (const [mainCat, problems] of Object.entries(SOCIAL_PROBLEMS)) {
     for (const rawProblem of problems) {
       // input problems with multi-word answers (sentences) → convert to sort type
       let problem = rawProblem;
@@ -322,7 +152,7 @@ const processProblems = (): ProblemCard[] => {
       const difficulty = problem.type === 'select' ? 2 : problem.type === 'input' ? 3 : 4;
       const card: ProblemCard = {
         id: idCounter++,
-        mainCategory: mainCat as EnglishCategory,
+        mainCategory: mainCat as SocialCategory,
         category: problem.type,
         difficulty,
         problem,
@@ -374,14 +204,14 @@ export const BADGE_DEFS: BadgeDef[] = [
   { id: 'chain_5', title: '5連鎖', description: '5問連続正解した', icon: '⚡' },
   { id: 'chain_10', title: '10連鎖', description: '10問連続正解した', icon: '⚡⚡' },
   { id: 'chain_20', title: '20連鎖', description: '20問連続正解した', icon: '⚡⚡⚡' },
-  // --- 文法マスター ---
-  { id: 'master_future', title: '未来形マスター', description: '未来形の正答率85%以上', icon: '🚀' },
-  { id: 'master_gerund', title: '動名詞マスター', description: '動名詞の正答率85%以上', icon: '📝' },
-  { id: 'master_infinitive', title: '不定詞マスター', description: '不定詞の正答率85%以上', icon: '✏️' },
-  { id: 'master_passive', title: '受け身マスター', description: '受け身の正答率85%以上', icon: '🛡️' },
-  { id: 'master_perfect', title: '現在完了マスター', description: '現在完了の正答率85%以上', icon: '⏰' },
-  { id: 'master_comparison', title: '比較マスター', description: '比較の正答率85%以上', icon: '⚖️' },
-  { id: 'all_master', title: '全文法制覇', description: '全カテゴリの正答率85%以上', icon: '🎓' },
+  // --- 単元マスター ---
+  { id: 'master_europe', title: 'ヨーロッパ近世マスター', description: 'ヨーロッパ近世の正答率85%以上', icon: '🚀' },
+  { id: 'master_azuchi', title: '安土桃山マスター', description: '安土桃山時代の正答率85%以上', icon: '📝' },
+  { id: 'master_culture', title: '安土文化マスター', description: '安土桃山の文化の正答率85%以上', icon: '✏️' },
+  { id: 'master_edo', title: '江戸のしくみマスター', description: '江戸時代のしくみの正答率85%以上', icon: '🛡️' },
+  { id: 'master_genroku', title: '元禄享保マスター', description: '元禄〜享保の正答率85%以上', icon: '⏰' },
+  { id: 'master_tanuma', title: '田沼寛政マスター', description: '田沼〜寛政の正答率85%以上', icon: '⚖️' },
+  { id: 'all_master', title: '全単元制覇', description: '全カテゴリの正答率85%以上', icon: '🎓' },
   // --- コレクション ---
   { id: 'deck_full', title: 'フルデッキ', description: 'カードを50枚以上所持', icon: '🃏' },
   { id: 'shop_first', title: '初めての買い物', description: 'ショップで初購入', icon: '🛒' },
@@ -425,12 +255,12 @@ export const WEEKLY_QUEST_DEFS: DailyQuestDef[] = [
  */
 export const SHOP_ITEMS: ShopItemDef[] = [
   // 称号（プレイヤー名横に表示）
-  { id: 'title_beginner', name: '英語初心者', description: '最初の一歩を踏み出した証', cost: 500, icon: '🔰', type: 'title' },
+  { id: 'title_beginner', name: '歴史初心者', description: '最初の一歩を踏み出した証', cost: 500, icon: '🔰', type: 'title' },
   { id: 'title_challenger', name: '挑戦者', description: '果敢に問題に挑む姿勢', cost: 1500, icon: '⚡', type: 'title' },
   { id: 'title_strategist', name: '戦略家', description: 'デッキ構築の達人', cost: 3000, icon: '🧠', type: 'title' },
-  { id: 'title_speaker', name: '英語の鬼', description: '解答速度に定評あり', cost: 5000, icon: '🔥', type: 'title' },
-  { id: 'title_master', name: '英語マスター', description: '全文法を制覇した者', cost: 10000, icon: '👑', type: 'title' },
-  { id: 'title_legend', name: '伝説の英語使い', description: '最高峰の称号', cost: 25000, icon: '🌟', type: 'title' },
+  { id: 'title_speaker', name: '歴史の鬼', description: '解答速度に定評あり', cost: 5000, icon: '🔥', type: 'title' },
+  { id: 'title_master', name: '歴史マスター', description: '全単元を制覇した者', cost: 10000, icon: '👑', type: 'title' },
+  { id: 'title_legend', name: '伝説の歴史家', description: '最高峰の称号', cost: 25000, icon: '🌟', type: 'title' },
   // ストリークシールド（ログイン連続日数を1回保護）
   { id: 'streak_shield', name: 'ストリークシールド', description: 'ログイン途切れを1回だけ防ぐ', cost: 2000, icon: '🛡️', type: 'streak_shield' },
   // バトルテーマ

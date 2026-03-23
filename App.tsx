@@ -1,5 +1,5 @@
 /**
- * App.tsx - BattleENG Online v3.0
+ * App.tsx - BattleSocial Online v3.0
  *
  * 統合機能:
  *  - Firebase Authentication (Google OAuth + Guest)  [エビデンスA: Firebase公式パターン]
@@ -75,15 +75,12 @@ const normalizeAnswer = (str: string): string => {
   return str
     .replace(/[！-～]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
     .replace(/\s+/g, '')
-    .replace(/[°度円枚個m分]/g, '')
     .replace(/＝/g, '=')
     .replace(/／/g, '/')
     .replace(/（/g, '(')
     .replace(/）/g, ')')
-    .replace(/\^([0-9+\-nm]+)/g, (_, digits: string) => digits.split('').map(c => SUPERSCRIPT_MAP[c] || c).join(''))
-    .replace(/pi/gi, 'π')
-    .replace(/0\.5x/g, '1/2x')
-    .replace(/([+-])0\.5x/g, '$11/2x')
+    .replace(/[「」『』]/g, '')
+    .replace(/·/g, '・')
     .toLowerCase();
 };
 
@@ -111,8 +108,8 @@ const App: React.FC = () => {
   const [initiative, setInitiative] = useState<TurnInitiative>('player');
 
   // --- Player Progression (synced to Firestore when logged in) ---
-  const [mathPoints, setMathPoints] = useState<number>(() => {
-    try { return JSON.parse(localStorage.getItem('battleMathPoints') || '1000'); }
+  const [socialPoints, setMathPoints] = useState<number>(() => {
+    try { return JSON.parse(localStorage.getItem('battleSocialPoints') || '1000'); }
     catch { return 1000; }
   });
   const [ownedCardIds, setOwnedCardIds] = useState<Set<number>>(() => {
@@ -258,7 +255,7 @@ const App: React.FC = () => {
   // localStorage sync
   // ============================
   useEffect(() => {
-    localStorage.setItem('battleMathPoints', JSON.stringify(mathPoints));
+    localStorage.setItem('battleSocialPoints', JSON.stringify(socialPoints));
     localStorage.setItem('battleMathOwnedCardIds', JSON.stringify(Array.from(ownedCardIds)));
     localStorage.setItem('battleMathPlayerLevel', JSON.stringify(playerLevel));
     localStorage.setItem('battleMathPlayerExp', JSON.stringify(playerExp));
@@ -267,7 +264,7 @@ const App: React.FC = () => {
     localStorage.setItem('bm_owned_shop_items', JSON.stringify(Array.from(ownedShopItems)));
     if (equippedTitle) localStorage.setItem('bm_equipped_title', equippedTitle);
     else localStorage.removeItem('bm_equipped_title');
-  }, [mathPoints, ownedCardIds, playerLevel, playerExp, userLevelStats, studentProfile, ownedShopItems, equippedTitle]);
+  }, [socialPoints, ownedCardIds, playerLevel, playerExp, userLevelStats, studentProfile, ownedShopItems, equippedTitle]);
 
   const ownedCards = useMemo(
     () => CARD_DEFINITIONS.filter(c => ownedCardIds.has(c.id)),
@@ -301,7 +298,7 @@ const App: React.FC = () => {
           const snap = await getDoc(ref);
           if (snap.exists()) {
             const d = snap.data();
-            if (d.mathPoints !== undefined) setMathPoints(d.mathPoints);
+            if (d.socialPoints !== undefined) setMathPoints(d.socialPoints);
             if (d.playerLevel !== undefined) setPlayerLevel(d.playerLevel);
             if (d.playerExp !== undefined) setPlayerExp(d.playerExp);
             if (d.ownedCardIds) setOwnedCardIds(new Set(d.ownedCardIds));
@@ -337,7 +334,7 @@ const App: React.FC = () => {
               displayName: u.displayName,
               email: u.email,
               photoURL: u.photoURL,
-              mathPoints,
+              socialPoints,
               playerLevel,
               playerExp,
               totalWins: 0,
@@ -392,7 +389,7 @@ const App: React.FC = () => {
       if (user && db) {
         updateDoc(doc(db, 'users', user.uid), {
           earnedBadgeIds: arrayUnion(badgeId),
-          mathPoints: increment(100),
+          socialPoints: increment(100),
         }).catch(() => {});
       }
       return new Set(prev).add(badgeId);
@@ -425,7 +422,7 @@ const App: React.FC = () => {
             newDone.add(q.id);
             setMathPoints(p => p + q.reward.mp);
             if (user && db) {
-              updateDoc(doc(db, 'users', user.uid), { mathPoints: increment(q.reward.mp) }).catch(() => {});
+              updateDoc(doc(db, 'users', user.uid), { socialPoints: increment(q.reward.mp) }).catch(() => {});
             }
           }
         });
@@ -451,7 +448,7 @@ const App: React.FC = () => {
             newDone.add(q.id);
             setMathPoints(p => p + q.reward.mp);
             if (user && db) {
-              updateDoc(doc(db, 'users', user.uid), { mathPoints: increment(q.reward.mp) }).catch(() => {});
+              updateDoc(doc(db, 'users', user.uid), { socialPoints: increment(q.reward.mp) }).catch(() => {});
             }
           }
         });
@@ -583,22 +580,22 @@ const App: React.FC = () => {
     setLoginBonusClaimed(true);
     if (user && db) {
       updateDoc(doc(db, 'users', user.uid), {
-        mathPoints: increment(reward),
+        socialPoints: increment(reward),
         loginBonusClaimedDate: getTodayStr(),
       }).catch(() => {});
     }
   }, [loginStreak, user]);
 
   const handleShopPurchase = useCallback((item: ShopItemDef) => {
-    if (ownedShopItems.has(item.id) || mathPoints < item.cost) return;
+    if (ownedShopItems.has(item.id) || socialPoints < item.cost) return;
     setMathPoints(p => p - item.cost);
     setOwnedShopItems(prev => new Set([...prev, item.id]));
     if (user && db) {
       updateDoc(doc(db, 'users', user.uid), {
-        mathPoints: increment(-item.cost),
+        socialPoints: increment(-item.cost),
       }).catch(() => {});
     }
-  }, [ownedShopItems, mathPoints, user]);
+  }, [ownedShopItems, socialPoints, user]);
 
   // 分野マスターバッジチェック
   const checkCategoryMasterBadges = useCallback(() => {
@@ -642,11 +639,11 @@ const App: React.FC = () => {
   // Refs to break useCallback dependency cycle (prevents infinite re-render on level-up)
   const playerLevelRef = useRef(playerLevel);
   const playerExpRef = useRef(playerExp);
-  const mathPointsRef = useRef(mathPoints);
+  const mathPointsRef = useRef(socialPoints);
   const ownedCardIdsRef = useRef(ownedCardIds);
   useEffect(() => { playerLevelRef.current = playerLevel; }, [playerLevel]);
   useEffect(() => { playerExpRef.current = playerExp; }, [playerExp]);
-  useEffect(() => { mathPointsRef.current = mathPoints; }, [mathPoints]);
+  useEffect(() => { mathPointsRef.current = socialPoints; }, [socialPoints]);
   useEffect(() => { ownedCardIdsRef.current = ownedCardIds; }, [ownedCardIds]);
 
   const addExp = useCallback((amount: number) => {
@@ -671,7 +668,7 @@ const App: React.FC = () => {
       setMathPoints(p => p + totalMpReward);
       setLevelUpInfo({ oldLevel, newLevel: currentLevel, mpReward: totalMpReward, newCard });
       setPlayerLevel(currentLevel);
-      saveUserToFirestore({ playerLevel: currentLevel, mathPoints: mathPointsRef.current + totalMpReward });
+      saveUserToFirestore({ playerLevel: currentLevel, socialPoints: mathPointsRef.current + totalMpReward });
     }
     setPlayerExp(currentExp);
     saveUserToFirestore({ playerExp: currentExp });
@@ -1323,9 +1320,9 @@ const App: React.FC = () => {
     }, (error) => {
       const msg = error?.message || '';
       if (msg.includes('not found') || msg.includes('404') || error?.code === 'not-found') {
-        console.error('[BattleENG] Firestoreデータベースが未作成です');
+        console.error('[BattleSocial] Firestoreデータベースが未作成です');
       } else {
-        console.error('[BattleENG] Room listener error:', msg);
+        console.error('[BattleSocial] Room listener error:', msg);
       }
     });
   };
@@ -1882,7 +1879,7 @@ const App: React.FC = () => {
             onGuestPlay={handleGuestPlay}
             onLogout={handleLogout}
             onOpenGameMaster={canAccessGameMaster ? handleOpenGameMaster : undefined}
-            mathPoints={mathPoints}
+            socialPoints={socialPoints}
             playerLevel={playerLevel}
             studentProfile={studentProfile}
             onStudentProfileSet={handleStudentProfileSet}
@@ -1897,7 +1894,7 @@ const App: React.FC = () => {
             playerExp={playerExp}
             expForNextLevel={expForNextLevel(playerLevel)}
             user={user}
-            mathPoints={mathPoints}
+            socialPoints={socialPoints}
             onLogout={handleLogout}
             onOpenRanking={() => setShowRanking(true)}
             loginStreak={loginStreak}
@@ -1967,11 +1964,11 @@ const App: React.FC = () => {
       case 'card_shop':
         return (
           <CardShop
-            mathPoints={mathPoints}
+            socialPoints={socialPoints}
             onBuyPack={(categories, cost, _t) => {
               const catSet = new Set(categories);
               const cards = CARD_DEFINITIONS.filter(c => !ownedCardIds.has(c.id) && catSet.has(c.mainCategory));
-              if (mathPoints < cost || cards.length === 0) return cards.length === 0 ? [] : null;
+              if (socialPoints < cost || cards.length === 0) return cards.length === 0 ? [] : null;
               // エビデンスA: 可変報酬スケジュール — 3〜6枚ランダム + 20%でCRITICAL!（Skinner 1938）
               const isCritical = Math.random() < 0.2;
               const baseCount = 3 + Math.floor(Math.random() * 2); // 3 or 4
@@ -1984,7 +1981,7 @@ const App: React.FC = () => {
                 return next;
               });
               saveUserToFirestore({
-                mathPoints: mathPoints - cost,
+                socialPoints: socialPoints - cost,
                 ownedCardIds: arrayUnion(...newCards.map(c => c.id)),
               });
               return newCards;
@@ -2250,7 +2247,7 @@ const App: React.FC = () => {
         )}
         {showItemShop && (
           <ItemShop
-            mathPoints={mathPoints}
+            socialPoints={socialPoints}
             ownedItems={ownedShopItems}
             equippedTitle={equippedTitle}
             onPurchase={handleShopPurchase}

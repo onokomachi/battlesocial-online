@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Problem, SessionStats } from '../types';
 import { getShuffledProblemSet } from '../services/problemService';
-import { ENG_CATEGORIES } from '../constants';
+import { SOCIAL_CATEGORIES } from '../constants';
 import DrawingCanvas from './DrawingCanvas';
 import ProblemControls from './ProblemControls';
 import ProblemResultDisplay from './ProblemResultDisplay';
@@ -171,7 +171,7 @@ const ProblemScreen: React.FC<ProblemScreenProps> = ({ category, subTopic, initi
 
   // 現在の階層パスを取得
   const getHierarchyLabel = useCallback(() => {
-    const cat = ENG_CATEGORIES.find(c => c.name === category);
+    const cat = SOCIAL_CATEGORIES.find(c => c.name === category);
     if (!cat) return category;
     const group = cat.groups.find(g => g.subtopics.includes(subTopic));
     return group ? `${category} / ${group.name}` : category;

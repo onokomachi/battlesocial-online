@@ -135,7 +135,7 @@ const ClassBattleBoard: React.FC<ClassBattleBoardProps> = ({
             entry.active++;
           }
 
-          entry.totalMp += (d.mathPoints || 0);
+          entry.totalMp += (d.socialPoints || 0);
           entry.totalCorrect += (d.totalCorrectAnswers || 0);
           const answered = (d.totalCorrectAnswers || 0) + Math.floor((d.totalMatches || 0) * 3);
           entry.totalAnswered += Math.max(answered, d.totalCorrectAnswers || 0);
