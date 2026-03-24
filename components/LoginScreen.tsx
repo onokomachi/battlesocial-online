@@ -163,19 +163,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
         {/* ── LEFT: Branding ── */}
         <div className="flex-1 text-center lg:text-left">
           {/* Eyebrow */}
-          <p className="text-xs text-sky-400 tracking-[0.5em] uppercase font-bold mb-4">
+          <p className="text-xs text-amber-400 tracking-[0.5em] uppercase font-bold mb-4">
             Social Battle Platform
           </p>
 
           {/* Title */}
           <div className="flex items-baseline gap-3 lg:justify-start justify-center mb-3">
             <h1 className="text-[clamp(3.5rem,10vw,7rem)] leading-none font-black"
-                style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#F97316', letterSpacing: '0.04em' }}>
-              Battle
+                style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#F59E0B', letterSpacing: '0.04em' }}>
+              BATTLE
             </h1>
             <h1 className="text-[clamp(3.5rem,10vw,7rem)] leading-none font-black"
-                style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#38BDF8', letterSpacing: '0.04em' }}>
-              ENG
+                style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#FBBF24', letterSpacing: '0.04em' }}>
+              SOCIAL
             </h1>
           </div>
           <div className="flex items-center gap-3 lg:justify-start justify-center mb-4">
@@ -183,7 +183,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
             <span className="text-[10px] font-bold tracking-[0.3em] uppercase" style={{ color: '#FB923C' }}>
               Social Battle Platform
             </span>
-            <div className="h-0.5 w-8 rounded-full" style={{ background: 'rgba(56,189,248,0.5)' }} />
+            <div className="h-0.5 w-8 rounded-full" style={{ background: 'rgba(251,191,36,0.5)' }} />
           </div>
 
           {/* Tagline */}

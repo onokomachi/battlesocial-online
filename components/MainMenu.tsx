@@ -62,12 +62,12 @@ const TopBar: React.FC<{
     {/* Logo */}
     <div className="flex items-center gap-2 min-w-0">
       <span className="text-xl sm:text-2xl font-black whitespace-nowrap"
-            style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#F97316', letterSpacing: '0.04em' }}>
-        Battle
+            style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#F59E0B', letterSpacing: '0.04em' }}>
+        BATTLE
       </span>
       <span className="text-xl sm:text-2xl font-black whitespace-nowrap"
-            style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#38BDF8', letterSpacing: '0.04em' }}>
-        ENG
+            style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#FBBF24', letterSpacing: '0.04em' }}>
+        SOCIAL
       </span>
       {equippedTitleName && (
         <span className="hidden md:inline text-[10px] px-2 py-0.5 rounded-full font-bold flex-shrink-0"

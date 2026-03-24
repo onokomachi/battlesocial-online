@@ -185,20 +185,20 @@ const Card: React.FC<CardProps> = ({
 
 export const CardBack: React.FC = () => {
   return (
-    <div className="w-32 h-48 sm:w-40 sm:h-60 md:w-48 md:h-72 bg-slate-950 border border-blue-500/40 rounded-xl shadow-2xl flex items-center justify-center p-2 overflow-hidden relative group">
-       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(30,58,138,0.3)_0%,transparent_70%)]"></div>
-       <div className="w-full h-full border border-blue-400/20 rounded-lg flex items-center justify-center bg-slate-900/40 relative overflow-hidden">
+    <div className="w-32 h-48 sm:w-40 sm:h-60 md:w-48 md:h-72 bg-slate-950 border border-amber-500/40 rounded-xl shadow-2xl flex items-center justify-center p-2 overflow-hidden relative group">
+       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,53,15,0.4)_0%,transparent_70%)]"></div>
+       <div className="w-full h-full border border-amber-400/20 rounded-lg flex items-center justify-center bg-slate-900/40 relative overflow-hidden">
             <div className="text-center z-10">
-                <h3 className="font-['Cinzel_Decorative'] font-bold text-2xl text-cyan-200 tracking-[0.25em] mb-1 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]">
-                    ENG
+                <h3 className="font-['Cinzel_Decorative'] font-bold text-2xl text-amber-200 tracking-[0.25em] mb-1 drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]">
+                    社会
                 </h3>
-                <div className="h-[1px] w-20 bg-cyan-500/40 mx-auto my-2 shadow-[0_0_10px_cyan]"></div>
-                <h3 className="font-['Cinzel_Decorative'] font-bold text-[10px] text-cyan-400/60 tracking-[0.15em]">
+                <div className="h-[1px] w-20 bg-amber-500/40 mx-auto my-2 shadow-[0_0_10px_rgba(251,191,36,0.8)]"></div>
+                <h3 className="font-['Cinzel_Decorative'] font-bold text-[10px] text-amber-400/60 tracking-[0.15em]">
                     BATTLE_DECK
                 </h3>
             </div>
             {/* Cyber Grid */}
-            <div className="absolute inset-0 opacity-[0.08] pointer-events-none bg-[linear-gradient(to_right,#22d3ee_1px,transparent_1px),linear-gradient(to_bottom,#22d3ee_1px,transparent_1px)] [background-size:20px_20px]"></div>
+            <div className="absolute inset-0 opacity-[0.08] pointer-events-none bg-[linear-gradient(to_right,#fbbf24_1px,transparent_1px),linear-gradient(to_bottom,#fbbf24_1px,transparent_1px)] [background-size:20px_20px]"></div>
        </div>
     </div>
   );

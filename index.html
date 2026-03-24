@@ -11,21 +11,21 @@
 <style>
 :root {
   /* === BATTLE-SOCIAL Sports Color System === */
-  --bg-main: #0B1D35;        /* Deep navy — sports arena at night */
-  --bg-card: #0F2444;        /* Panel background */
-  --bg-surface: #162d50;     /* Elevated surface */
-  --sky-blue: #0EA5E9;       /* Primary — team color */
-  --sky-blue-bright: #38BDF8;/* Lighter blue for accents */
+  --bg-main: #1A1005;        /* Deep navy — sports arena at night */
+  --bg-card: #2D1F0E;        /* Panel background */
+  --bg-surface: #3D2B14;     /* Elevated surface */
+  --sky-blue: #F59E0B;       /* Primary — team color */
+  --sky-blue-bright: #FBBF24;/* Lighter blue for accents */
   --vivid-orange: #F97316;   /* Accent — energy/fire */
   --orange-bright: #FB923C;  /* Lighter orange */
   --success: #22C55E;        /* Correct answer */
   --danger: #EF4444;         /* Wrong answer */
-  --gold: #F59E0B;           /* Rankings/rewards */
+  --gold: #FCD34D;           /* Rankings/rewards */
   --text-primary: #F1F5F9;   /* Main text */
   --text-secondary: #94A3B8; /* Secondary text */
-  --border-subtle: rgba(56, 189, 248, 0.18);
-  --border-bright: rgba(56, 189, 248, 0.5);
-  --glow-blue: 0 0 20px rgba(14, 165, 233, 0.4), 0 0 60px rgba(14, 165, 233, 0.15);
+  --border-subtle: rgba(251, 191, 36, 0.18);
+  --border-bright: rgba(251, 191, 36, 0.5);
+  --glow-blue: 0 0 20px rgba(245, 158, 11, 0.4), 0 0 60px rgba(245, 158, 11, 0.15);
   --glow-orange: 0 0 20px rgba(249, 115, 22, 0.4), 0 0 60px rgba(249, 115, 22, 0.15);
 }
 
@@ -42,34 +42,34 @@ body {
 .hud-panel {
   background: rgba(12, 26, 50, 0.93);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(249, 115, 22, 0.15);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(249, 115, 22, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(251, 191, 36, 0.08);
 }
 
 /* === Athletic Title (BattleSocial) === */
 .text-hologram {
   font-family: 'Bebas Neue', sans-serif;
-  background: linear-gradient(120deg, #38BDF8 0%, #F97316 60%, #FB923C 100%);
+  background: linear-gradient(120deg, #FBBF24 0%, #F59E0B 40%, #F97316 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 14px rgba(249, 115, 22, 0.4));
+  filter: drop-shadow(0 2px 14px rgba(245, 158, 11, 0.5));
   letter-spacing: 0.05em;
 }
 
 /* === Primary Button (sky blue) === */
 .btn-tactical {
-  background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   border: none;
   color: #fff;
   font-weight: 800;
   font-family: 'Noto Sans JP', 'Inter', sans-serif;
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-tactical:hover {
-  background: linear-gradient(135deg, #38BDF8 0%, #0EA5E9 100%);
+  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 .btn-tactical:active { transform: translateY(0); }
 
@@ -99,9 +99,9 @@ body {
 }
 .card-sports:hover {
   border-color: var(--sky-blue);
-  background: rgba(14, 165, 233, 0.12);
+  background: rgba(245, 158, 11, 0.12);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
 }
 .card-sports.selected {
   border-color: var(--vivid-orange);
@@ -121,8 +121,8 @@ body {
 
 /* === Score / Stats Badge === */
 .stat-badge {
-  background: rgba(14, 165, 233, 0.15);
-  border: 1px solid rgba(14, 165, 233, 0.3);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 8px;
   padding: 6px 12px;
 }
@@ -197,8 +197,8 @@ body {
 
 /* EXP Bar glow */
 .exp-bar-fill {
-  background: linear-gradient(90deg, #0EA5E9, #38BDF8, #F97316);
-  box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+  background: linear-gradient(90deg, #F59E0B, #FBBF24, #FCD34D);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
 }
 
 /* Streak fire badge */
@@ -214,7 +214,7 @@ body {
 .overflow-y-auto { overflow-y: auto; }
 .overflow-y-auto::-webkit-scrollbar { width: 4px; }
 .overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
-.overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 2px; }
+.overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(251,191,36,0.4); border-radius: 2px; }
 
 /* Scale-down fallback for tiny viewports */
 @media (max-height: 500px) {
