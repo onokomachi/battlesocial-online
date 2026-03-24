@@ -4,135 +4,169 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BattleSocial ONLINE</title>
+    <title>天下戦記 | BATTLE SOCIAL</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;600;700;900&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* === BATTLE-SOCIAL Sports Color System === */
-  --bg-main: #1A1005;        /* Deep navy — sports arena at night */
-  --bg-card: #2D1F0E;        /* Panel background */
-  --bg-surface: #3D2B14;     /* Elevated surface */
-  --sky-blue: #F59E0B;       /* Primary — team color */
-  --sky-blue-bright: #FBBF24;/* Lighter blue for accents */
-  --vivid-orange: #F97316;   /* Accent — energy/fire */
-  --orange-bright: #FB923C;  /* Lighter orange */
-  --success: #22C55E;        /* Correct answer */
-  --danger: #EF4444;         /* Wrong answer */
-  --gold: #FCD34D;           /* Rankings/rewards */
-  --text-primary: #F1F5F9;   /* Main text */
-  --text-secondary: #94A3B8; /* Secondary text */
-  --border-subtle: rgba(251, 191, 36, 0.18);
-  --border-bright: rgba(251, 191, 36, 0.5);
-  --glow-blue: 0 0 20px rgba(245, 158, 11, 0.4), 0 0 60px rgba(245, 158, 11, 0.15);
-  --glow-orange: 0 0 20px rgba(249, 115, 22, 0.4), 0 0 60px rgba(249, 115, 22, 0.15);
+  /* === 黒甲冑・金装飾 カラーシステム === */
+  --bg-main:        #0A0805;               /* 漆黒 — 黒漆甲冑 */
+  --bg-card:        #0F0C08;               /* 板金パネル */
+  --bg-surface:     #181308;               /* 段位パネル */
+  --gold-primary:   #C8962A;               /* 古金 */
+  --gold-bright:    #D4AF37;               /* 純金 */
+  --gold-highlight: #F0C040;               /* 輝く金 */
+  --gold-dim:       #8B6914;               /* くすみ金 */
+  --crimson:        #8B1A1A;               /* 深紅 — 戦の血 */
+  --success:        #22C55E;
+  --danger:         #EF4444;
+  --text-primary:   #EDE0C4;               /* 和紙色 */
+  --text-secondary: #A08C5A;               /* くすみ金テキスト */
+  --border-subtle:  rgba(180, 130, 20, 0.22);
+  --border-bright:  rgba(212, 175, 55, 0.65);
+  --glow-gold:      0 0 20px rgba(180,130,20,0.45), 0 0 60px rgba(180,130,20,0.15);
+  --glow-crimson:   0 0 20px rgba(139,26,26,0.4);
 }
 
 body {
   margin: 0; padding: 0; overflow: hidden;
-  font-family: 'Noto Sans JP', 'Inter', sans-serif;
+  font-family: 'Noto Serif JP', 'Noto Sans JP', serif;
   background: var(--bg-main);
   color: var(--text-primary);
 }
 
 #root { position: relative; z-index: 10; height: 100vh; }
 
-/* === Sports Card Panel === */
+/* =====================================================
+   甲冑装甲パネル
+   ===================================================== */
 .hud-panel {
-  background: rgba(12, 26, 50, 0.93);
+  background: linear-gradient(180deg, rgba(16,12,7,0.97) 0%, rgba(10,8,5,0.98) 100%);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(251, 191, 36, 0.2);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(180, 130, 20, 0.38);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.88),
+    inset 0 1px 0 rgba(212,175,55,0.14),
+    inset 0 -1px 0 rgba(0,0,0,0.5);
 }
 
-/* === Athletic Title (BattleSocial) === */
+/* =====================================================
+   金文字タイトル
+   ===================================================== */
 .text-hologram {
-  font-family: 'Bebas Neue', sans-serif;
-  background: linear-gradient(120deg, #FBBF24 0%, #F59E0B 40%, #F97316 100%);
+  font-family: 'Noto Serif JP', serif;
+  background: linear-gradient(135deg, #F0C040 0%, #D4AF37 35%, #C8962A 70%, #F0C040 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 14px rgba(245, 158, 11, 0.5));
-  letter-spacing: 0.05em;
+  filter: drop-shadow(0 2px 12px rgba(180,130,20,0.55));
+  letter-spacing: 0.14em;
 }
 
-/* === Primary Button (sky blue) === */
+/* =====================================================
+   主ボタン — 金縁・黒地
+   ===================================================== */
 .btn-tactical {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  border: none;
-  color: #fff;
-  font-weight: 800;
-  font-family: 'Noto Sans JP', 'Inter', sans-serif;
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  background: linear-gradient(180deg, rgba(22,17,8,0.98) 0%, rgba(12,9,4,1) 100%);
+  border: 1.5px solid rgba(180,130,20,0.78);
+  color: #D4AF37;
+  font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.14em;
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.72),
+    0 0 16px rgba(140,100,10,0.18),
+    inset 0 1px 0 rgba(212,175,55,0.12);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-tactical:hover {
-  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+  background: linear-gradient(180deg, rgba(35,26,10,1) 0%, rgba(22,16,6,1) 100%);
+  border-color: rgba(212,175,55,0.95);
+  color: #F0C040;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.82),
+    0 0 28px rgba(180,130,10,0.38),
+    inset 0 1px 0 rgba(240,192,64,0.18);
 }
 .btn-tactical:active { transform: translateY(0); }
 
-/* === Orange Button (primary CTA) === */
+/* =====================================================
+   出陣ボタン — 金装填
+   ===================================================== */
 .btn-orange {
-  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
-  border: none;
-  color: #fff;
+  background: linear-gradient(135deg, #9A7010 0%, #7A5508 100%);
+  border: 1.5px solid rgba(212,175,55,0.72);
+  color: #F8E8A0;
   font-weight: 800;
-  box-shadow: 0 4px 18px rgba(249, 115, 22, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.14em;
+  box-shadow: 0 4px 18px rgba(100,70,5,0.58), inset 0 1px 0 rgba(255,240,150,0.2);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-orange:hover {
-  background: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
+  background: linear-gradient(135deg, #B88018 0%, #9A6510 100%);
+  border-color: rgba(240,200,70,0.92);
+  color: #FFF8C0;
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(249, 115, 22, 0.65);
+  box-shadow: 0 8px 28px rgba(140,100,10,0.68), inset 0 1px 0 rgba(255,250,180,0.25);
 }
 .btn-orange:active { transform: translateY(0); }
 
-/* === Sports Card (Answer Options) === */
+/* =====================================================
+   答えカード（選択肢）
+   ===================================================== */
 .card-sports {
-  background: rgba(22, 45, 80, 0.95);
-  border: 2px solid var(--border-subtle);
-  border-radius: 12px;
+  background: rgba(14,11,7,0.95);
+  border: 2px solid rgba(180,130,20,0.25);
+  border-radius: 10px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.55);
 }
 .card-sports:hover {
-  border-color: var(--sky-blue);
-  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(212,175,55,0.68);
+  background: rgba(28,20,8,0.98);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 8px 20px rgba(120,80,5,0.32);
 }
 .card-sports.selected {
-  border-color: var(--vivid-orange);
-  background: rgba(249, 115, 22, 0.12);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+  border-color: rgba(212,175,55,0.88);
+  background: rgba(35,25,5,0.95);
+  box-shadow: 0 0 0 3px rgba(180,130,20,0.32);
 }
 
-/* === Corner Accents (now blue/orange) === */
+/* =====================================================
+   角飾り（金）
+   ===================================================== */
 .corner-accent {
   position: absolute; width: 14px; height: 14px;
-  border-color: var(--sky-blue-bright); border-style: solid; opacity: 0.6;
+  border-color: var(--gold-bright); border-style: solid; opacity: 0.65;
 }
 .lt { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
 .rt { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
 .lb { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
 .rb { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
-/* === Score / Stats Badge === */
+/* =====================================================
+   ステータスバッジ
+   ===================================================== */
 .stat-badge {
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(16,12,6,0.96);
+  border: 1px solid rgba(180,130,20,0.38);
   border-radius: 8px;
   padding: 6px 12px;
 }
 
-/* === Rank Medals === */
-.rank-gold   { color: #F59E0B; text-shadow: 0 0 12px rgba(245,158,11,0.6); }
-.rank-silver { color: #94A3B8; text-shadow: 0 0 8px rgba(148,163,184,0.4); }
-.rank-bronze { color: #CD7C2F; text-shadow: 0 0 8px rgba(205,124,47,0.4); }
+/* =====================================================
+   段位徽章（金・銀・銅）
+   ===================================================== */
+.rank-gold   { color: #F0C040; text-shadow: 0 0 12px rgba(212,175,55,0.65); }
+.rank-silver { color: #A8B0B8; text-shadow: 0 0 8px rgba(168,176,184,0.4); }
+.rank-bronze { color: #C07830; text-shadow: 0 0 8px rgba(192,120,48,0.4); }
 
-/* === Animations === */
+/* =====================================================
+   アニメーション
+   ===================================================== */
 @keyframes eng-fade-in {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -168,7 +202,7 @@ body {
 }
 .animate-slide-up { animation: slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-/* Card flip */
+/* カードフリップ */
 .card-container { perspective: 1000px; width: 14rem; height: 18rem; }
 .card-inner {
   position: relative; width: 100%; height: 100%;
@@ -183,9 +217,9 @@ body {
 
 /* VFX */
 @keyframes screen-shake {
-  0%, 100%              { transform: translate(0, 0); }
+  0%, 100%                { transform: translate(0, 0); }
   10%, 30%, 50%, 70%, 90% { transform: translate(-2px, 1px); }
-  20%, 40%, 60%, 80%    { transform: translate(2px, -1px); }
+  20%, 40%, 60%, 80%      { transform: translate(2px, -1px); }
 }
 .vfx-shake { animation: screen-shake 0.4s both; }
 
@@ -195,38 +229,51 @@ body {
 }
 .vfx-success { animation: success-burst 0.5s ease-out; }
 
-/* EXP Bar glow */
+/* 修行ゲージ（金色） */
 .exp-bar-fill {
-  background: linear-gradient(90deg, #F59E0B, #FBBF24, #FCD34D);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  background: linear-gradient(90deg, #7A5508, #C8962A, #D4AF37, #F0C040);
+  box-shadow: 0 0 10px rgba(180,130,20,0.58);
 }
 
-/* Streak fire badge */
+/* 連続ログインバッジ */
 .streak-badge {
-  background: linear-gradient(135deg, #F97316, #EF4444);
-  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.5);
+  background: linear-gradient(135deg, #C8962A, #8B1A1A);
+  box-shadow: 0 2px 8px rgba(139,26,26,0.52);
 }
 
-/* ===== Responsive: prevent overflow on all screen sizes ===== */
+/* =====================================================
+   レスポンシブ
+   ===================================================== */
 * { box-sizing: border-box; }
-
-/* Allow inner scroll without body scroll */
 .overflow-y-auto { overflow-y: auto; }
 .overflow-y-auto::-webkit-scrollbar { width: 4px; }
 .overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
-.overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(251,191,36,0.4); border-radius: 2px; }
+.overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(180,130,20,0.48); border-radius: 2px; }
 
-/* Scale-down fallback for tiny viewports */
 @media (max-height: 500px) {
   .hud-panel { padding: 8px !important; }
   .text-hologram { filter: none; }
 }
 
-/* Touch-friendly tap targets */
 @media (hover: none) {
   .btn-tactical:hover, .btn-orange:hover { transform: none; }
   button { min-height: 40px; }
 }
+
+/* =====================================================
+   金装甲テーマ: Tailwind sky系クラスの上書き
+   ===================================================== */
+.text-sky-400                        { color: #C8962A !important; }
+.text-sky-300                        { color: #D4AF37 !important; }
+.text-sky-500                        { color: #B8860B !important; }
+.border-sky-500\/20                  { border-color: rgba(180,130,20,0.20) !important; }
+.border-sky-500\/25                  { border-color: rgba(180,130,20,0.25) !important; }
+.border-sky-500\/50                  { border-color: rgba(180,130,20,0.50) !important; }
+.hover\:border-sky-500\/50:hover     { border-color: rgba(180,130,20,0.55) !important; }
+.hover\:text-sky-400:hover           { color: #C8962A !important; }
+.bg-sky-900\/25                      { background-color: rgba(50,35,5,0.25) !important; }
+.hover\:bg-sky-900\/25:hover         { background-color: rgba(50,35,5,0.25) !important; }
+.hover\:bg-sky-900\/20:hover         { background-color: rgba(50,35,5,0.20) !important; }
 </style>
 </head>
   <body>
