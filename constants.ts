@@ -34,20 +34,50 @@ export const DECK_CONSTRAINTS: Record<number, number> = {
 };
 
 // 社会科カテゴリ × 問題タイプ別に構造化（グループ別）
-// grade: 1=世界史, 2=日本史・安土桃山〜江戸前期, 3=日本史・江戸中後期
+// grade: 1=中1（古代〜中世）, 2=中2（近世〜明治）, 3=中3（近代〜現代）
 export const SOCIAL_CATEGORIES: CategoryDef[] = [
-  // ── 世界史 ────────────────────────────────────────────────
+  // ── 中1：古代〜中世 ──────────────────────────────────────
+  {
+    name: '古代文明と宗教',
+    grade: 1,
+    groups: [{ name: '古代文明と宗教', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '縄文・弥生・古墳',
+    grade: 1,
+    groups: [{ name: '縄文・弥生・古墳', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '飛鳥時代',
+    grade: 1,
+    groups: [{ name: '飛鳥時代', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '奈良時代',
+    grade: 1,
+    groups: [{ name: '奈良時代', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '平安時代',
+    grade: 1,
+    groups: [{ name: '平安時代', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
   {
     name: 'ヨーロッパ近世',
     grade: 1,
     groups: [{ name: 'ヨーロッパ近世', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
+  // ── 中2：近世〜明治 ──────────────────────────────────────
   {
-    name: '17,18世紀ヨーロッパ',
-    grade: 1,
-    groups: [{ name: '17,18世紀ヨーロッパ', subtopics: ['選択式', '記述式', '並び替え'] }],
+    name: '鎌倉時代',
+    grade: 2,
+    groups: [{ name: '鎌倉時代', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
-  // ── 日本史・安土桃山〜江戸前期 ──────────────────────────
+  {
+    name: '室町時代',
+    grade: 2,
+    groups: [{ name: '室町時代', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
   {
     name: '安土桃山時代',
     grade: 2,
@@ -68,26 +98,76 @@ export const SOCIAL_CATEGORIES: CategoryDef[] = [
     grade: 2,
     groups: [{ name: '江戸初期の外交', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
-  // ── 日本史・江戸中後期 ──────────────────────────────────
   {
     name: '江戸の産業と都市',
-    grade: 3,
+    grade: 2,
     groups: [{ name: '江戸の産業と都市', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
     name: '元禄〜享保',
-    grade: 3,
+    grade: 2,
     groups: [{ name: '元禄〜享保', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
     name: '田沼〜寛政',
-    grade: 3,
+    grade: 2,
     groups: [{ name: '田沼〜寛政', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
   {
     name: '文化文政〜天保',
-    grade: 3,
+    grade: 2,
     groups: [{ name: '文化文政〜天保', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '17,18世紀ヨーロッパ',
+    grade: 2,
+    groups: [{ name: '17,18世紀ヨーロッパ', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '市民革命と産業革命',
+    grade: 2,
+    groups: [{ name: '市民革命と産業革命', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '明治維新',
+    grade: 2,
+    groups: [{ name: '明治維新', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '自由民権運動と憲法',
+    grade: 2,
+    groups: [{ name: '自由民権運動と憲法', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '日清・日露戦争',
+    grade: 2,
+    groups: [{ name: '日清・日露戦争', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  // ── 中3：近代〜現代 ──────────────────────────────────────
+  {
+    name: '第一次世界大戦と大正デモクラシー',
+    grade: 3,
+    groups: [{ name: '第一次世界大戦と大正デモクラシー', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '世界恐慌と軍国主義',
+    grade: 3,
+    groups: [{ name: '世界恐慌と軍国主義', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '第二次世界大戦',
+    grade: 3,
+    groups: [{ name: '第二次世界大戦', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '戦後の日本と世界',
+    grade: 3,
+    groups: [{ name: '戦後の日本と世界', subtopics: ['選択式', '記述式', '並び替え'] }],
+  },
+  {
+    name: '現代の日本と世界',
+    grade: 3,
+    groups: [{ name: '現代の日本と世界', subtopics: ['選択式', '記述式', '並び替え'] }],
   },
 ];
 
@@ -101,16 +181,35 @@ const assignAbility = (card: ProblemCard): Ability | undefined => {
   // select(difficulty=2)はアビリティなし。input/sort のみ
   if (card.difficulty < 3) return undefined;
   const abilityMap: { [key: string]: AbilityType[] } = {
-    'ヨーロッパ近世':       ['SCORE_BOOST'],
-    '安土桃山時代':         ['SCORE_BOOST'],
-    '安土桃山の文化':       ['TIME_PRESSURE'],
-    '江戸時代のしくみ':     ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
-    '江戸初期の外交':       ['TIME_PRESSURE'],
-    '江戸の産業と都市':     ['DEFENSIVE_STANCE'],
-    '元禄〜享保':           ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
-    '田沼〜寛政':           ['TIME_PRESSURE'],
-    '文化文政〜天保':       ['TIME_PRESSURE', 'SCORE_BOOST'],
-    '17,18世紀ヨーロッパ':  ['SCORE_BOOST'],
+    // 中1
+    '古代文明と宗教':                    ['SCORE_BOOST'],
+    '縄文・弥生・古墳':                  ['DEFENSIVE_STANCE'],
+    '飛鳥時代':                          ['SCORE_BOOST'],
+    '奈良時代':                          ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
+    '平安時代':                          ['TIME_PRESSURE'],
+    'ヨーロッパ近世':                    ['SCORE_BOOST'],
+    // 中2
+    '鎌倉時代':                          ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
+    '室町時代':                          ['TIME_PRESSURE'],
+    '安土桃山時代':                      ['SCORE_BOOST'],
+    '安土桃山の文化':                    ['TIME_PRESSURE'],
+    '江戸時代のしくみ':                  ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
+    '江戸初期の外交':                    ['TIME_PRESSURE'],
+    '江戸の産業と都市':                  ['DEFENSIVE_STANCE'],
+    '元禄〜享保':                        ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
+    '田沼〜寛政':                        ['TIME_PRESSURE'],
+    '文化文政〜天保':                    ['TIME_PRESSURE', 'SCORE_BOOST'],
+    '17,18世紀ヨーロッパ':              ['SCORE_BOOST'],
+    '市民革命と産業革命':                ['SCORE_BOOST'],
+    '明治維新':                          ['DEFENSIVE_STANCE', 'SCORE_BOOST'],
+    '自由民権運動と憲法':                ['TIME_PRESSURE'],
+    '日清・日露戦争':                    ['SCORE_BOOST'],
+    // 中3
+    '第一次世界大戦と大正デモクラシー': ['TIME_PRESSURE', 'SCORE_BOOST'],
+    '世界恐慌と軍国主義':                ['DEFENSIVE_STANCE'],
+    '第二次世界大戦':                    ['DEFENSIVE_STANCE', 'TIME_PRESSURE'],
+    '戦後の日本と世界':                  ['SCORE_BOOST'],
+    '現代の日本と世界':                  ['TIME_PRESSURE', 'SCORE_BOOST'],
   };
   const possibleTypes = abilityMap[card.mainCategory];
   if (!possibleTypes) return undefined;
