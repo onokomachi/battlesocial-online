@@ -34,7 +34,8 @@ import MainMenu from './components/MainMenu';
 import PracticeMode from './components/PracticeMode';
 import CardShop from './components/CardShop';
 import LevelUpModal from './components/LevelUpModal';
-import GravityBackground from './components/GravityBackground';
+import SlideshowBackground from './components/SlideshowBackground';
+import BattleBackground from './components/BattleBackground';
 import LoginScreen from './components/LoginScreen';
 import Matchmaking from './components/Matchmaking';
 import RankingBoard from './components/RankingBoard';
@@ -2190,7 +2191,13 @@ const App: React.FC = () => {
 
   return (
     <main className="w-screen h-screen relative flex flex-col items-center justify-center font-sans">
-      <GravityBackground />
+      {(gameState === 'in_game' || gameState === 'speed_duel') ? (
+        <BattleBackground />
+      ) : gameState === 'login_screen' ? (
+        <SlideshowBackground opacity={0.7} />
+      ) : (
+        <SlideshowBackground opacity={0.3} />
+      )}
       <div className="relative z-10 w-full h-full">
         {renderContent()}
         {levelUpInfo && <LevelUpModal {...levelUpInfo} onClose={() => setLevelUpInfo(null)} />}
