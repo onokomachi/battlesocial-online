@@ -18,10 +18,28 @@ const GRADES = [1, 2, 3];
 const CLASSES = Array.from({ length: 10 }, (_, i) => i + 1);
 const NUMBERS = Array.from({ length: 45 }, (_, i) => i + 1);
 
+// 伊勢崎市立中学校 11校 + 中等教育学校 1校
+const SCHOOLS = [
+  '第一中学校',
+  '第二中学校',
+  '第三中学校',
+  '第四中学校',
+  '殖蓮中学校',
+  '宮郷中学校',
+  '赤堀中学校',
+  'あずま中学校',
+  '境北中学校',
+  '境西中学校',
+  '境南中学校',
+  '四ツ葉学園中等教育学校',
+];
+
 // ── 兵籍登録 ──────────────────────────────────────────────────────────────
 const ProfileSetup: React.FC<{
   onSubmit: (p: StudentProfile) => void;
 }> = ({ onSubmit }) => {
+  const [step, setStep] = useState<'school' | 'detail'>('school');
+  const [school, setSchool] = useState('');
   const [grade, setGrade] = useState(2);
   const [cls, setCls] = useState(1);
   const [num, setNum] = useState(1);
@@ -31,9 +49,48 @@ const ProfileSetup: React.FC<{
       grade,
       classNum: cls,
       number: num,
-      displayLabel: `${grade}年${cls}組${num}番`,
+      displayLabel: `${school} ${grade}年${cls}組${num}番`,
+      schoolName: school,
     });
   };
+
+  if (step === 'school') {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-4">
+        <div className="w-full max-w-lg animate-slide-up">
+          <div className="text-center mb-8">
+            <p className="text-xs tracking-[0.35em] font-bold mb-2" style={{ color: '#C8962A' }}>
+              兵　籍　登　録
+            </p>
+            <h2 className="text-5xl font-black text-hologram">武将名簿</h2>
+            <p className="text-sm mt-2" style={{ color: '#A08C5A' }}>所属する学校を選べ</p>
+          </div>
+
+          <div className="hud-panel rounded-2xl p-7" style={{ border: '1px solid rgba(180,130,20,0.3)' }}>
+            <label className="block text-[11px] tracking-[0.3em] font-bold mb-4" style={{ color: '#C8962A' }}>
+              学　校
+            </label>
+            <div className="grid grid-cols-1 gap-2">
+              {SCHOOLS.map(s => (
+                <button
+                  key={s}
+                  onClick={() => { setSchool(s); setStep('detail'); }}
+                  className={`py-3 px-4 rounded-xl text-sm font-bold text-left transition-all duration-200 ${
+                    school === s
+                      ? 'btn-tactical scale-[1.01]'
+                      : 'bg-slate-800/60 border border-slate-700 hover:border-yellow-700/50 hover:text-white'
+                  }`}
+                  style={school !== s ? { color: '#C8A84A' } : {}}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full flex items-center justify-center p-4">
@@ -48,6 +105,18 @@ const ProfileSetup: React.FC<{
         </div>
 
         <div className="hud-panel rounded-2xl p-7 space-y-6" style={{ border: '1px solid rgba(180,130,20,0.3)' }}>
+          {/* 選択中の学校 */}
+          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(180,130,20,0.08)', border: '1px solid rgba(180,130,20,0.25)' }}>
+            <span className="text-sm font-black" style={{ color: '#D4AF37' }}>{school}</span>
+            <button
+              onClick={() => setStep('school')}
+              className="ml-auto text-[11px] font-bold transition-colors hover:text-yellow-400"
+              style={{ color: '#6B5A3A' }}
+            >
+              【変更】
+            </button>
+          </div>
+
           {/* 学年 */}
           <div>
             <label className="block text-[11px] tracking-[0.3em] font-bold mb-3" style={{ color: '#C8962A' }}>
@@ -121,6 +190,9 @@ const ProfileSetup: React.FC<{
           <div className="pt-3" style={{ borderTop: '1px solid rgba(180,130,20,0.2)' }}>
             <div className="text-center mb-4">
               <p className="text-[11px] mb-1" style={{ color: '#6B5A3A' }}>選択</p>
+              <p className="text-lg font-black" style={{ fontFamily: "'Noto Serif JP', serif", color: '#D4AF37' }}>
+                {school}
+              </p>
               <p className="text-2xl font-black" style={{ fontFamily: "'Noto Serif JP', serif", color: '#D4AF37' }}>
                 {grade}年{cls}組{num}番
               </p>

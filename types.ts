@@ -35,12 +35,13 @@ export type SocialCategory =
   | '戦後の日本と世界'
   | '現代の日本と世界';
 
-// --- Student Profile (学年・組・番号) ---
+// --- Student Profile (学校・学年・組・番号) ---
 export interface StudentProfile {
-  grade: number;    // 学年 (1, 2, 3)
-  classNum: number; // 組 (1〜10)
-  number: number;   // 出席番号 (1〜45)
-  displayLabel: string; // e.g. "2年3組12番"
+  grade: number;      // 学年 (1, 2, 3)
+  classNum: number;   // 組 (1〜10)
+  number: number;     // 出席番号 (1〜45)
+  displayLabel: string; // e.g. "第三中学校 2年3組12番"
+  schoolName: string; // 学校名
 }
 
 // --- Auth / Online Types ---
