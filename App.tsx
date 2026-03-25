@@ -34,7 +34,7 @@ import MainMenu from './components/MainMenu';
 import PracticeMode from './components/PracticeMode';
 import CardShop from './components/CardShop';
 import LevelUpModal from './components/LevelUpModal';
-import SlideshowBackground from './components/SlideshowBackground';
+import VideoBackground from './components/VideoBackground';
 import BattleBackground from './components/BattleBackground';
 import LoginScreen from './components/LoginScreen';
 import Matchmaking from './components/Matchmaking';
@@ -145,6 +145,8 @@ const App: React.FC = () => {
   // --- Battle State ---
   const [playerDeck, setPlayerDeck] = useState<ProblemCard[]>([]);
   const [pcDeck, setPcDeck] = useState<ProblemCard[]>([]);
+  const playerDeckRef = useRef<ProblemCard[]>([]);
+  const pcDeckRef = useRef<ProblemCard[]>([]);
   const [playerHand, setPlayerHand] = useState<ProblemCard[]>([]);
   const [pcHand, setPcHand] = useState<ProblemCard[]>([]);
   const [playerHP, setPlayerHP] = useState(INITIAL_HP);
@@ -175,6 +177,7 @@ const App: React.FC = () => {
   const unsubscribeRoomRef = useRef<(() => void) | null>(null);
   const isHostRef = useRef(isHost);
   const processedMatchIdRef = useRef<string | null>(null);
+  const processedWinRef = useRef<boolean>(false);
   const pendingPvpDeckRef = useRef<ProblemCard[]>([]);
   const pendingSdSetupRef = useRef<SpeedDuelSetup | null>(null);
   const currentRoomIdRef = useRef<string | null>(null);
@@ -249,6 +252,8 @@ const App: React.FC = () => {
   useEffect(() => { isHostRef.current = isHost; }, [isHost]);
   useEffect(() => { currentRoomIdRef.current = currentRoomId; }, [currentRoomId]);
   useEffect(() => { gameModeRef.current = gameMode; }, [gameMode]);
+  useEffect(() => { playerDeckRef.current = playerDeck; }, [playerDeck]);
+  useEffect(() => { pcDeckRef.current = pcDeck; }, [pcDeck]);
   const gameStateRef = useRef<GameState>('login_screen');
   useEffect(() => { gameStateRef.current = gameState; }, [gameState]);
 
@@ -697,7 +702,17 @@ const App: React.FC = () => {
         if (data.status === 'waiting' && data.createdAt) {
           const createdMs = data.createdAt.toDate ? data.createdAt.toDate().getTime() : 0;
           if (createdMs > 0 && now - createdMs > 10 * 60 * 1000) {
-            // 古いwaitingルームを自動クリーンアップ
+            updateDoc(doc(db, 'rooms', d.id), { status: 'finished', winnerId: 'abandoned' }).catch(() => {});
+            return;
+          }
+        }
+        // playingルームもハートビートが古ければゾンビとして除去
+        if (data.status === 'playing') {
+          const hostActive = data.hostLastActive?.toDate ? data.hostLastActive.toDate().getTime() : 0;
+          const guestActive = data.guestLastActive?.toDate ? data.guestLastActive.toDate().getTime() : 0;
+          const latestActive = Math.max(hostActive, guestActive);
+          // 両者とも5分以上応答なし → ゾンビルーム
+          if (latestActive > 0 && now - latestActive > 5 * 60 * 1000) {
             updateDoc(doc(db, 'rooms', d.id), { status: 'finished', winnerId: 'abandoned' }).catch(() => {});
             return;
           }
@@ -748,6 +763,7 @@ const App: React.FC = () => {
       setOpponentDisconnected(false);
     }
     processedMatchIdRef.current = null;
+    processedWinRef.current = false;
     setWinner(null);
     setPlayerPlayedCard(null);
     setPcPlayedCard(null);
@@ -1205,22 +1221,27 @@ const App: React.FC = () => {
     return () => clearTimeout(t);
   }, [sdRound?.phase, sdRound?.result, gameState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // エビデンスA: MDN beforeunload + visibilitychange
+  // エビデンスA: MDN beforeunload + pagehide
   // ブラウザ閉じ/タブ閉じ時にルームをクリーンアップ
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const doCleanup = () => {
       const rid = currentRoomIdRef.current;
       if (!rid || !db) return;
-      // sendBeacon で非同期的にクリーンアップ（信頼性は低いが最善策）
-      // Firestore REST APIへのbeaconは複雑なため、updateDocを試みる
       const roomRef = doc(db, 'rooms', rid);
       updateDoc(roomRef, {
         status: 'finished',
         winnerId: isHostRef.current ? 'guest' : 'host',
       }).catch(() => {});
     };
+    // pagehideはモバイルブラウザやタブ閉じで最も確実に発火する
+    const handlePageHide = () => doCleanup();
+    const handleBeforeUnload = () => doCleanup();
+    window.addEventListener('pagehide', handlePageHide);
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const listenToRoom = (roomId: string) => {
@@ -1235,14 +1256,23 @@ const App: React.FC = () => {
       const data = snap.data() as Room;
       const isHostVal = isHostRef.current;
 
-      // エビデンスB: 相手の切断検知（lastActiveが90秒以上古い場合）
+      // エビデンスB: 相手の切断検知（lastActiveが60秒以上古い場合）
       if (data.status === 'playing') {
         const opponentLastActive = isHostVal ? data.guestLastActive : data.hostLastActive;
         if (opponentLastActive) {
           const lastActiveMs = opponentLastActive.toDate ? opponentLastActive.toDate().getTime() : 0;
-          const staleThreshold = 180000; // 180秒（ハートビート120秒に合わせて余裕を持たせる）
+          const staleThreshold = 60000; // 60秒（ハートビート30秒に合わせて余裕を持たせる）
           if (lastActiveMs > 0 && Date.now() - lastActiveMs > staleThreshold) {
             setOpponentDisconnected(true);
+            // 切断から30秒の猶予後、ルームを自動終了して勝利判定
+            const disconnectGrace = 90000; // 90秒（60秒 + 30秒猶予）
+            if (Date.now() - lastActiveMs > disconnectGrace) {
+              const roomRef = doc(db, 'rooms', snap.id);
+              updateDoc(roomRef, {
+                status: 'finished',
+                winnerId: isHostVal ? 'host' : 'guest',
+              }).catch(() => {});
+            }
           } else {
             setOpponentDisconnected(false);
           }
@@ -1293,8 +1323,10 @@ const App: React.FC = () => {
         setPlayerHP(isHostVal ? data.p1Hp : data.p2Hp);
         setPcHP(isHostVal ? data.p2Hp : data.p1Hp);
 
-        if (data.winnerId && processedMatchIdRef.current !== roomId) {
-          processedMatchIdRef.current = roomId;
+        // winnerId検出: processedWinRef で重複処理を防止
+        // （processedMatchIdRef はマッチ開始時に roomId がセットされるため、勝利判定には使えない）
+        if (data.winnerId && data.status === 'finished' && !processedWinRef.current) {
+          processedWinRef.current = true;
           const isWinner = (data.winnerId === 'host' && isHostVal) || (data.winnerId === 'guest' && !isHostVal);
           const isAbandoned = data.winnerId === 'abandoned' || data.winnerId === 'admin_terminated';
           if (isAbandoned) {
@@ -1307,7 +1339,6 @@ const App: React.FC = () => {
             setMathPoints(p => p + 300);
             saveUserToFirestore({ totalWins: increment(1), totalMatches: increment(1) });
             earnBadge('first_pvp_win');
-            // PvP10勝バッジチェックはサーバー側totalWinsで判断できないので省略
           } else if (!isAbandoned) {
             addExp(100);
             saveUserToFirestore({ totalMatches: increment(1) });
@@ -1408,7 +1439,7 @@ const App: React.FC = () => {
 
   useEffect(() => { if (currentRoomId) listenToRoom(currentRoomId); }, [currentRoomId]);
 
-  // エビデンスB: ハートビートパターン - 120秒ごとにlastActiveを更新（Firestore無料枠節約）
+  // エビデンスB: ハートビートパターン - 30秒ごとにlastActiveを更新（切断検知を高速化）
   useEffect(() => {
     if (!currentRoomId || !db || !user) return;
     const field = isHostRef.current ? 'hostLastActive' : 'guestLastActive';
@@ -1416,7 +1447,7 @@ const App: React.FC = () => {
       updateDoc(doc(db, 'rooms', currentRoomId), {
         [field]: serverTimestamp(),
       }).catch(() => {});
-    }, 120000);
+    }, 30000);
     // 初回も即時更新
     updateDoc(doc(db, 'rooms', currentRoomId), {
       [field]: serverTimestamp(),
@@ -1652,6 +1683,21 @@ const App: React.FC = () => {
     }
   };
 
+  // 手札・デッキ切れ時の安全策: ゲームを引き分けで終了
+  useEffect(() => {
+    if (gameState !== 'in_game' || turnPhase !== 'selecting_card') return;
+    if (playerHand.length === 0 && playerDeck.length === 0) {
+      addLog('デッキ切れ — 試合終了');
+      if (gameMode === 'pvp' && currentRoomId && db && isHostRef.current) {
+        updateDoc(doc(db, 'rooms', currentRoomId), {
+          status: 'finished', winnerId: 'draw',
+        }).catch(() => {});
+      }
+      setWinner('引き分け\nデッキ切れ');
+      setGameState('end');
+    }
+  }, [gameState, turnPhase, playerHand.length, playerDeck.length, gameMode, currentRoomId]);
+
   // ============================
   // PC Initiative
   // ============================
@@ -1822,16 +1868,21 @@ const App: React.FC = () => {
       setInitiative(isPlayerLostRound ? 'player' : 'pc');
       setPlayerHand(prev => {
         const needed = HAND_SIZE - prev.length;
-        if (needed <= 0 || playerDeck.length === 0) return prev;
-        const newCards = playerDeck.slice(0, needed);
-        setPlayerDeck(d => d.slice(needed));
+        if (needed <= 0) return prev;
+        // playerDeckRef経由で最新のデッキ状態を取得
+        const currentDeck = playerDeckRef.current;
+        if (currentDeck.length === 0) return prev;
+        const newCards = currentDeck.slice(0, needed);
+        setPlayerDeck(currentDeck.slice(needed));
         return [...prev, ...newCards];
       });
       setPcHand(prev => {
         const needed = HAND_SIZE - prev.length;
-        if (needed <= 0 || pcDeck.length === 0) return prev;
-        const newCards = pcDeck.slice(0, needed);
-        setPcDeck(d => d.slice(needed));
+        if (needed <= 0) return prev;
+        const currentDeck = pcDeckRef.current;
+        if (currentDeck.length === 0) return prev;
+        const newCards = currentDeck.slice(0, needed);
+        setPcDeck(currentDeck.slice(needed));
         return [...prev, ...newCards];
       });
       setPlayerPlayedCard(null);
@@ -2194,9 +2245,9 @@ const App: React.FC = () => {
       {(gameState === 'in_game' || gameState === 'speed_duel') ? (
         <BattleBackground />
       ) : gameState === 'login_screen' ? (
-        <SlideshowBackground opacity={0.7} />
+        <VideoBackground opacity={0.7} />
       ) : (
-        <SlideshowBackground opacity={0.3} />
+        <VideoBackground opacity={0.3} />
       )}
       <div className="relative z-10 w-full h-full">
         {renderContent()}
