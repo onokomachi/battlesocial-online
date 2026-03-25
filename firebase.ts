@@ -7,7 +7,7 @@ import { getStorage } from 'firebase/storage';
 
 // battlesocial-online Firebase project config (from Firebase console)
 const firebaseConfig = {
-  apiKey: "AIzaSyC8rc1q0QPOa0L2vLtC_vY1N9YW2w68BwE",
+  apiKey: "AIzaSyC8rc1q0QPOa0l2vLtC_vY1N9YW2w68BwE",
   authDomain: "battlesocial-online.firebaseapp.com",
   projectId: "battlesocial-online",
   storageBucket: "battlesocial-online.firebasestorage.app",
