@@ -151,7 +151,7 @@ const CardShop: React.FC<CardShopProps> = ({ socialPoints, onBuyPack, onExit }) 
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 lg:p-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 w-full max-w-6xl mx-auto">
           {PACKS.map(pack => (
             <div key={pack.type}
