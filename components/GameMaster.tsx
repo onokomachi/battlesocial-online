@@ -458,7 +458,7 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
                   {selectedGrade}年{selectedClassNum}組 ({classStudents.length}名)
                 </h2>
               </div>
-              <div className="flex-grow overflow-auto">
+              <div className="flex-grow min-h-0 overflow-auto">
                 {classStudents.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-gray-500">
                     <p className="text-4xl mb-3 opacity-30">&#128203;</p>

@@ -56,8 +56,8 @@ const ProfileSetup: React.FC<{
 
   if (step === 'school') {
     return (
-      <div className="w-full h-full flex items-center justify-center p-4">
-        <div className="w-full max-w-lg animate-slide-up">
+      <div className="w-full h-full flex flex-col items-center overflow-y-auto p-4">
+        <div className="w-full max-w-lg my-auto py-4 animate-slide-up">
           <div className="text-center mb-8">
             <p className="text-xs tracking-[0.35em] font-bold mb-2" style={{ color: '#C8962A' }}>
               兵　籍　登　録
@@ -93,8 +93,8 @@ const ProfileSetup: React.FC<{
   }
 
   return (
-    <div className="w-full h-full flex items-center justify-center p-4">
-      <div className="w-full max-w-lg animate-slide-up">
+    <div className="w-full h-full flex flex-col items-center overflow-y-auto p-4">
+      <div className="w-full max-w-lg my-auto py-4 animate-slide-up">
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xs tracking-[0.35em] font-bold mb-2" style={{ color: '#C8962A' }}>
