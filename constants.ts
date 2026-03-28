@@ -28,6 +28,15 @@ export const calcDamage = (difficulty: number): number =>
 export const ADMIN_EMAILS: string[] = []; // Add admin email addresses here
 export const GAMEMASTER_PASSWORD = '215124'; // Change in production
 
+// School year (年度) helpers
+// 日本の年度は4月始まり: 4月以降 → その年, 1〜3月 → 前年
+export const DEFAULT_SCHOOL_YEAR = 2025;
+export const getCurrentSchoolYear = (): number => {
+  const now = new Date();
+  const month = now.getMonth() + 1; // 1-indexed
+  return month >= 4 ? now.getFullYear() : now.getFullYear() - 1;
+};
+
 export const DECK_CONSTRAINTS: Record<number, number> = {
   4: 7,
   5: 3,

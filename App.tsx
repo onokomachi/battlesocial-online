@@ -54,6 +54,8 @@ import ItemShop from './components/ItemShop';
 import TutorialBattle from './components/TutorialBattle';
 import type { ShopItemDef } from './types';
 import { getCategoryStats } from './services/weaknessAnalysisService';
+import NewYearPrompt from './components/NewYearPrompt';
+import { DEFAULT_SCHOOL_YEAR, getCurrentSchoolYear } from './constants';
 
 // ============================
 // Helpers
@@ -104,11 +106,17 @@ const App: React.FC = () => {
       if (!p.schoolName) {
         p.schoolName = '第三中学校';
         p.displayLabel = `第三中学校 ${p.grade}年${p.classNum}組${p.number}番`;
-        localStorage.setItem('battleMathStudentProfile', JSON.stringify(p));
       }
+      // 既存ユーザー（schoolYear未設定）はデフォルト年度を補完
+      if (p.schoolYear === undefined) {
+        p.schoolYear = DEFAULT_SCHOOL_YEAR;
+      }
+      localStorage.setItem('battleMathStudentProfile', JSON.stringify(p));
       return p;
     } catch { return null; }
   });
+  const [showNewYearPrompt, setShowNewYearPrompt] = useState(false);
+  const newYearCheckedRef = useRef(false);
 
   // --- Game State ---
   const [gameState, setGameState] = useState<GameState>('login_screen');
@@ -327,6 +335,10 @@ const App: React.FC = () => {
                 sp.schoolName = '第三中学校';
                 sp.displayLabel = `第三中学校 ${sp.grade}年${sp.classNum}組${sp.number}番`;
               }
+              // 既存ユーザー（schoolYear未設定）はデフォルト年度を補完
+              if (sp.schoolYear === undefined) {
+                sp.schoolYear = DEFAULT_SCHOOL_YEAR;
+              }
               setStudentProfile(sp);
               localStorage.setItem('battleMathStudentProfile', JSON.stringify(sp));
             }
@@ -529,6 +541,22 @@ const App: React.FC = () => {
     return () => clearTimeout(t);
   }, [wrongAnswerText]);
 
+  // 新年度プロフィール更新チェック
+  useEffect(() => {
+    if (newYearCheckedRef.current) return;
+    if (!studentProfile) return;
+    // 卒業済みはスキップ
+    if (studentProfile.grade > 3) return;
+    const currentSchoolYear = getCurrentSchoolYear();
+    const profileYear = studentProfile.schoolYear ?? DEFAULT_SCHOOL_YEAR;
+    if (profileYear >= currentSchoolYear) return;
+    // 3日以内にスキップ済みの場合は表示しない
+    const skippedAt = parseInt(localStorage.getItem('beng_newYearSkippedAt') || '0', 10);
+    if (skippedAt > 0 && Date.now() - skippedAt < 3 * 24 * 60 * 60 * 1000) return;
+    newYearCheckedRef.current = true;
+    setShowNewYearPrompt(true);
+  }, [studentProfile]);
+
   // ============================
   // セッションデータ書き込み (Firestore quota最小化)
   // ============================
@@ -589,6 +617,16 @@ const App: React.FC = () => {
       } catch (e) { console.error('Student profile sync error:', e); }
     }
   }, [user]);
+
+  const handleNewYearConfirm = useCallback(async (updated: StudentProfile) => {
+    setShowNewYearPrompt(false);
+    await handleStudentProfileSet(updated);
+  }, [handleStudentProfileSet]);
+
+  const handleNewYearSkip = useCallback(() => {
+    localStorage.setItem('beng_newYearSkippedAt', String(Date.now()));
+    setShowNewYearPrompt(false);
+  }, []);
 
   const handleGuestPlay = () => {
     setGameState(tutorialDone ? 'main_menu' : 'tutorial');
@@ -2303,6 +2341,13 @@ const App: React.FC = () => {
             db={db}
             onClose={() => setShowClassBattle(false)}
             currentSchool={studentProfile?.schoolName}
+          />
+        )}
+        {showNewYearPrompt && studentProfile && (
+          <NewYearPrompt
+            profile={studentProfile}
+            onConfirm={handleNewYearConfirm}
+            onSkip={handleNewYearSkip}
           />
         )}
         {showWeaknessPanel && (

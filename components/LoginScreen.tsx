@@ -45,12 +45,15 @@ const ProfileSetup: React.FC<{
   const [num, setNum] = useState(1);
 
   const handleSubmit = () => {
+    const now = new Date();
+    const currentSchoolYear = (now.getMonth() + 1) >= 4 ? now.getFullYear() : now.getFullYear() - 1;
     onSubmit({
       grade,
       classNum: cls,
       number: num,
       displayLabel: `${school} ${grade}年${cls}組${num}番`,
       schoolName: school,
+      schoolYear: currentSchoolYear,
     });
   };
 
