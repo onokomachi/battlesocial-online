@@ -71,6 +71,7 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
   const [userSearch, setUserSearch] = useState('');
 
   // Class management state
+  const [selectedSchool, setSelectedSchool] = useState<string>('');
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedClassNum, setSelectedClassNum] = useState<number>(1);
   const [classDetailUser, setClassDetailUser] = useState<UserData | null>(null);
@@ -137,13 +138,31 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
   }, [users, userSearch]);
 
   // --- Class-based data ---
-  // 学年・組で生徒をグループ化
+  // 登録済みの学校名一覧（自動抽出）
+  const schoolList = useMemo(() => {
+    const names = new Set<string>();
+    users.forEach(u => {
+      if (u.studentProfile?.schoolName) names.add(u.studentProfile.schoolName);
+    });
+    return Array.from(names).sort();
+  }, [users]);
+
+  // 初回: 学校一覧が出そろったらデフォルト選択
+  React.useEffect(() => {
+    if (selectedSchool === '' && schoolList.length > 0) {
+      setSelectedSchool(schoolList[0]);
+    }
+  }, [schoolList]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 学校・学年・組で生徒をグループ化
   const classStudents = useMemo(() => {
     return users.filter(u => {
       const sp = u.studentProfile;
-      return sp && sp.grade === selectedGrade && sp.classNum === selectedClassNum;
+      if (!sp) return false;
+      if (selectedSchool && sp.schoolName !== selectedSchool) return false;
+      return sp.grade === selectedGrade && sp.classNum === selectedClassNum;
     }).sort((a, b) => (a.studentProfile?.number || 0) - (b.studentProfile?.number || 0));
-  }, [users, selectedGrade, selectedClassNum]);
+  }, [users, selectedSchool, selectedGrade, selectedClassNum]);
 
   // クラス全体の統計
   const classStats = useMemo(() => {
@@ -162,17 +181,18 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
     return { totalStudents, avgLevel, totalCorrect, totalMatches, totalWins, avgMP, activeLast7d };
   }, [classStudents]);
 
-  // 全学年・全組に存在する生徒数のサマリー
+  // 選択中の学校内での学年・組別生徒数サマリー
   const gradeClassSummary = useMemo(() => {
     const summary: Record<number, Record<number, number>> = {};
     users.forEach(u => {
       const sp = u.studentProfile;
       if (!sp) return;
+      if (selectedSchool && sp.schoolName !== selectedSchool) return;
       if (!summary[sp.grade]) summary[sp.grade] = {};
       summary[sp.grade][sp.classNum] = (summary[sp.grade][sp.classNum] || 0) + 1;
     });
     return summary;
-  }, [users]);
+  }, [users, selectedSchool]);
 
   // --- User Actions ---
   const handleResetUserStats = async (userId: string, name: string) => {
@@ -309,6 +329,38 @@ const GameMaster: React.FC<GameMasterProps> = ({ db, onClose }) => {
             {/* Class selector */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
               <div className="flex items-center gap-6 flex-wrap">
+                {/* School selector */}
+                {schoolList.length > 1 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-purple-400 font-bold tracking-widest">学校:</span>
+                    <div className="flex gap-1 flex-wrap">
+                      <button
+                        onClick={() => setSelectedSchool('')}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                          selectedSchool === ''
+                            ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]'
+                            : 'bg-gray-800 text-gray-400 border border-gray-700 hover:text-white'
+                        }`}
+                      >
+                        全校
+                      </button>
+                      {schoolList.map(s => (
+                        <button
+                          key={s}
+                          onClick={() => setSelectedSchool(s)}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                            selectedSchool === s
+                              ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]'
+                              : 'bg-gray-800 text-gray-400 border border-gray-700 hover:text-white'
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Grade selector */}
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-purple-400 font-bold tracking-widest">学年:</span>
