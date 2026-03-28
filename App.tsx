@@ -21,12 +21,13 @@ import {
   runTransaction, where, orderBy, limit, Timestamp, deleteDoc
 } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
-import type { ProblemCard, TurnPhase, GameState, TurnInitiative, Room, BattleMode, BattleFormat, BadgeDef, StudentProfile, Problem, SpeedDuelSetup, SpeedDuelRound } from './types';
+import type { ProblemCard, TurnPhase, GameState, TurnInitiative, Room, BattleMode, BattleFormat, BadgeDef, StudentProfile, Problem, SpeedDuelSetup, SpeedDuelRound, ActiveBooster } from './types';
 import {
   CARD_DEFINITIONS, HAND_SIZE, DECK_SIZE,
   INITIAL_HP, calcDamage, ADMIN_EMAILS, GAMEMASTER_PASSWORD,
   BADGE_DEFS, DAILY_QUEST_DEFS, WEEKLY_QUEST_DEFS, getTodayStr, getWeekStart,
   SHOP_ITEMS, SPEED_DUEL_DAMAGE, SPEED_DUEL_TIME_LIMIT, SPEED_DUEL_SECOND_CHANCE_TIME,
+  TITLE_DEFS, THEME_CONFIGS,
 } from './constants';
 import GameBoard from './components/GameBoard';
 import DeckBuilder from './components/DeckBuilder';
@@ -232,6 +233,37 @@ const App: React.FC = () => {
     try { return localStorage.getItem('bm_equipped_title') || null; }
     catch { return null; }
   });
+  // Phase 6: テーマ
+  const [equippedTheme, setEquippedTheme] = useState<string | null>(() => {
+    try { return localStorage.getItem('bm_equipped_theme') || null; }
+    catch { return null; }
+  });
+  // Phase 5: ストリークシールド
+  const [shieldUsedThisSession, setShieldUsedThisSession] = useState(false);
+  // Phase 7: 消耗品
+  const [activeBooster, setActiveBooster] = useState<ActiveBooster | null>(() => {
+    try {
+      const s = localStorage.getItem('bm_active_booster');
+      if (!s) return null;
+      const b = JSON.parse(s) as ActiveBooster;
+      return b.expiresAt > Date.now() ? b : null;
+    } catch { return null; }
+  });
+  const [hintTokens, setHintTokens] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem('bm_hint_tokens') || '0', 10); }
+    catch { return 0; }
+  });
+  const [expBoosterActive, setExpBoosterActive] = useState<boolean>(() => {
+    try { return localStorage.getItem('bm_exp_booster') === '1'; }
+    catch { return false; }
+  });
+  // 称号
+  const [earnedTitleIds, setEarnedTitleIds] = useState<Set<string>>(() => {
+    try {
+      const s = localStorage.getItem('bm_earned_titles');
+      return s ? new Set(JSON.parse(s)) : new Set(['title_newcomer']);
+    } catch { return new Set(['title_newcomer']); }
+  });
   const [tutorialDone, setTutorialDone] = useState(() => {
     return localStorage.getItem('bm_tutorial_done') === '1';
   });
@@ -286,7 +318,17 @@ const App: React.FC = () => {
     localStorage.setItem('bm_owned_shop_items', JSON.stringify(Array.from(ownedShopItems)));
     if (equippedTitle) localStorage.setItem('bm_equipped_title', equippedTitle);
     else localStorage.removeItem('bm_equipped_title');
-  }, [socialPoints, ownedCardIds, playerLevel, playerExp, userLevelStats, studentProfile, ownedShopItems, equippedTitle]);
+    if (equippedTheme) localStorage.setItem('bm_equipped_theme', equippedTheme);
+    else localStorage.removeItem('bm_equipped_theme');
+    localStorage.setItem('bm_earned_titles', JSON.stringify(Array.from(earnedTitleIds)));
+    localStorage.setItem('bm_hint_tokens', String(hintTokens));
+    localStorage.setItem('bm_exp_booster', expBoosterActive ? '1' : '0');
+    if (activeBooster && activeBooster.expiresAt > Date.now()) {
+      localStorage.setItem('bm_active_booster', JSON.stringify(activeBooster));
+    } else {
+      localStorage.removeItem('bm_active_booster');
+    }
+  }, [socialPoints, ownedCardIds, playerLevel, playerExp, userLevelStats, studentProfile, ownedShopItems, equippedTitle, equippedTheme, earnedTitleIds, hintTokens, expBoosterActive, activeBooster]);
 
   const ownedCards = useMemo(
     () => CARD_DEFINITIONS.filter(c => ownedCardIds.has(c.id)),
@@ -349,7 +391,21 @@ const App: React.FC = () => {
             const lastLogin: string = d.lastLoginDate || '';
             let newStreak: number = d.loginStreak || 0;
             if (lastLogin !== today) {
-              newStreak = lastLogin === yesterdayStr ? newStreak + 1 : 1;
+              if (lastLogin === yesterdayStr) {
+                newStreak = newStreak + 1;
+              } else if (d.hasStreakShield && lastLogin) {
+                // シールド発動: ストリーク保持
+                newStreak = newStreak;
+                setShieldUsedThisSession(true);
+                updateDoc(ref, { hasStreakShield: false }).catch(() => {});
+                setOwnedShopItems(prev => {
+                  const n = new Set(prev);
+                  n.delete('streak_shield');
+                  return n;
+                });
+              } else {
+                newStreak = 1;
+              }
               await updateDoc(ref, { loginStreak: newStreak, lastLoginDate: today }).catch(() => {});
               // Show login bonus modal automatically on new day
               setLoginBonusClaimed(false);
@@ -393,6 +449,15 @@ const App: React.FC = () => {
             setDailyQuestDone(new Set(JSON.parse(localStorage.getItem(`${dqKey}_done`) || '[]')));
             setWeeklyQuestDone(new Set(JSON.parse(localStorage.getItem(`${wqKey}_done`) || '[]')));
           } catch {}
+          // Firestore から earnedTitleIds を復元
+          if (snap.exists() && snap.data().earnedTitleIds) {
+            const firestoreTitleIds = snap.data().earnedTitleIds as string[];
+            setEarnedTitleIds(prev => {
+              const merged = new Set(prev);
+              firestoreTitleIds.forEach((id: string) => merged.add(id));
+              return merged;
+            });
+          }
         } catch (e) { console.error('User sync error:', e); }
       }
     });
@@ -405,6 +470,72 @@ const App: React.FC = () => {
       await updateDoc(doc(db, 'users', user.uid), updates);
     } catch (e) { console.error('Firestore update error:', e); }
   }, [user]);
+
+  // ============================
+  // 称号付与・チェック
+  // ============================
+  const earnTitle = useCallback((titleId: string) => {
+    setEarnedTitleIds(prev => {
+      if (prev.has(titleId)) return prev;
+      if (!TITLE_DEFS.find(t => t.id === titleId)) return prev;
+      if (user && db) {
+        updateDoc(doc(db, 'users', user.uid), { earnedTitleIds: arrayUnion(titleId) }).catch(() => {});
+      }
+      return new Set(prev).add(titleId);
+    });
+  }, [user]);
+
+  const checkTitleConditions = useCallback((snapshot: {
+    totalCorrectAnswers: number;
+    totalWins: number;
+    loginStreak: number;
+    playerLevel: number;
+    earnedBadgeIds: Set<string>;
+  }) => {
+    setEarnedTitleIds(prev => {
+      const toAdd: string[] = [];
+      TITLE_DEFS.filter(t => !t.isMonthly && !prev.has(t.id)).forEach(title => {
+        const { type, value = 0, badgeId } = title.condition;
+        const ok =
+          type === 'any' ||
+          (type === 'total_correct' && snapshot.totalCorrectAnswers >= value) ||
+          (type === 'total_wins' && snapshot.totalWins >= value) ||
+          (type === 'login_streak' && snapshot.loginStreak >= value) ||
+          (type === 'level' && snapshot.playerLevel >= value) ||
+          (type === 'badge_owned' && !!badgeId && snapshot.earnedBadgeIds.has(badgeId));
+        if (ok) toAdd.push(title.id);
+      });
+      if (toAdd.length === 0) return prev;
+      const next = new Set(prev);
+      toAdd.forEach(id => {
+        next.add(id);
+        if (user && db) {
+          updateDoc(doc(db, 'users', user.uid), { earnedTitleIds: arrayUnion(id) }).catch(() => {});
+        }
+      });
+      return next;
+    });
+  }, [user]);
+
+  const checkMonthlyChampion = useCallback(async () => {
+    if (!db || !user) return;
+    const monthKey = new Date().toISOString().slice(0, 7);
+    try {
+      const snap = await getDoc(doc(db, 'config', `monthly_champion_${monthKey}`));
+      const isChampion = snap.exists() && snap.data()?.winnerUid === user.uid;
+      if (isChampion) {
+        earnTitle('title_monthly_champion');
+      } else {
+        setEquippedTitle(prev => prev === 'title_monthly_champion' ? null : prev);
+        setEarnedTitleIds(prev => {
+          if (!prev.has('title_monthly_champion')) return prev;
+          const n = new Set(prev);
+          n.delete('title_monthly_champion');
+          return n;
+        });
+      }
+    } catch {}
+  }, [user, earnTitle]);
 
   // ============================
   // バッジ獲得
@@ -526,13 +657,29 @@ const App: React.FC = () => {
     }
   }, [earnBadge, handleQuestProgress]);
 
-  // ログインストリークバッジ
+  // 月次チャンピオン称号チェック（ログイン時1回、userが確立後）
+  const monthlyChampionCheckedRef = useRef(false);
+  useEffect(() => {
+    if (!user || monthlyChampionCheckedRef.current) return;
+    monthlyChampionCheckedRef.current = true;
+    checkMonthlyChampion();
+  }, [user, checkMonthlyChampion]);
+
+  // ログインストリークバッジ＋称号チェック
   useEffect(() => {
     if (loginStreak >= 3) earnBadge('streak_3');
     if (loginStreak >= 7) earnBadge('streak_7');
     if (loginStreak >= 14) earnBadge('streak_14');
     if (loginStreak >= 30) earnBadge('streak_30');
-  }, [loginStreak, earnBadge]);
+    // ストリーク称号チェック
+    checkTitleConditions({
+      totalCorrectAnswers,
+      totalWins: 0,
+      loginStreak,
+      playerLevel,
+      earnedBadgeIds,
+    });
+  }, [loginStreak, earnBadge]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 正解ヒント自動クリア（3秒後）
   useEffect(() => {
@@ -645,13 +792,29 @@ const App: React.FC = () => {
   }, [loginStreak, user]);
 
   const handleShopPurchase = useCallback((item: ShopItemDef) => {
-    if (ownedShopItems.has(item.id) || socialPoints < item.cost) return;
+    const isConsumable = item.type === 'hint_token' || item.type === 'mp_booster' || item.type === 'exp_booster';
+    if (!isConsumable && ownedShopItems.has(item.id)) return;
+    if (socialPoints < item.cost) return;
     setMathPoints(p => p - item.cost);
-    setOwnedShopItems(prev => new Set([...prev, item.id]));
     if (user && db) {
-      updateDoc(doc(db, 'users', user.uid), {
-        socialPoints: increment(-item.cost),
-      }).catch(() => {});
+      updateDoc(doc(db, 'users', user.uid), { socialPoints: increment(-item.cost) }).catch(() => {});
+    }
+    if (item.type === 'streak_shield') {
+      setOwnedShopItems(prev => new Set([...prev, item.id]));
+      if (user && db) {
+        updateDoc(doc(db, 'users', user.uid), { hasStreakShield: true }).catch(() => {});
+      }
+    } else if (item.type === 'theme') {
+      setOwnedShopItems(prev => new Set([...prev, item.id]));
+    } else if (item.type === 'mp_booster') {
+      const booster: ActiveBooster = { type: 'mp_booster', expiresAt: Date.now() + (item.durationMs ?? 3600000), multiplier: 2 };
+      setActiveBooster(booster);
+    } else if (item.type === 'hint_token') {
+      setHintTokens(prev => prev + 1);
+    } else if (item.type === 'exp_booster') {
+      setExpBoosterActive(true);
+    } else {
+      setOwnedShopItems(prev => new Set([...prev, item.id]));
     }
   }, [ownedShopItems, socialPoints, user]);
 
@@ -692,6 +855,15 @@ const App: React.FC = () => {
   // ============================
   // Progression
   // ============================
+  // MPブースター対応の addMathPoints ヘルパー
+  const addMathPoints = useCallback((amount: number) => {
+    if (amount > 0 && activeBooster?.type === 'mp_booster' && activeBooster.expiresAt > Date.now()) {
+      setMathPoints(p => p + amount * activeBooster.multiplier);
+    } else {
+      setMathPoints(p => p + amount);
+    }
+  }, [activeBooster]);
+
   const expForNextLevel = useCallback((level: number) => 100 + (level - 1) * 50, []);
 
   // Refs to break useCallback dependency cycle (prevents infinite re-render on level-up)
@@ -705,7 +877,9 @@ const App: React.FC = () => {
   useEffect(() => { ownedCardIdsRef.current = ownedCardIds; }, [ownedCardIds]);
 
   const addExp = useCallback((amount: number) => {
-    let currentExp = playerExpRef.current + amount;
+    const actualAmount = expBoosterActive ? amount * 2 : amount;
+    if (expBoosterActive) setExpBoosterActive(false);
+    let currentExp = playerExpRef.current + actualAmount;
     let currentLevel = playerLevelRef.current;
     const oldLevel = currentLevel;
     let totalMpReward = 0;
@@ -1130,7 +1304,7 @@ const App: React.FC = () => {
           const isWin = format === 'master_duel' ? opHPAfter <= 0 && myHPAfter > 0 : myWinsAfter >= reqWins;
           const isDraw = format === 'master_duel' ? myHPAfter <= 0 && opHPAfter <= 0 : false;
           setWinner(isDraw ? '引き分け' : isWin ? '勝利！' : '敗北...');
-          if (isWin) { addExp(500); setMathPoints(p => p + 300); }
+          if (isWin) { addExp(500); addMathPoints(300); }
           else { addExp(100); }
           handleQuestProgress('pvp_match');
           flushSessionData().catch(() => {});
@@ -1254,7 +1428,7 @@ const App: React.FC = () => {
         } else if (isWin) {
           setWinner('勝利！\nスピードデュエル制覇！');
           addExp(500);
-          setMathPoints(p => p + 300);
+          addMathPoints(300);
           earnBadge('first_win');
         } else {
           setWinner('敗北...\n次こそ勝とう！');
@@ -1388,7 +1562,7 @@ const App: React.FC = () => {
           }
           if (isWinner && !isAbandoned) {
             addExp(500);
-            setMathPoints(p => p + 300);
+            addMathPoints(300);
             saveUserToFirestore({ totalWins: increment(1), totalMatches: increment(1) });
             earnBadge('first_pvp_win');
           } else if (!isAbandoned) {
@@ -1881,13 +2055,21 @@ const App: React.FC = () => {
           const winDetail = battleFormat !== 'master_duel' ? `\n${newPlayerRoundWins}-${newPcRoundWins} (${formatLabel})` : '';
           setWinner(`勝利！\nおめでとう！${winDetail}`);
           addExp(500);
-          setMathPoints(p => p + 300);
+          addMathPoints(300);
           saveUserToFirestore({ totalWins: increment(1), totalMatches: increment(1), [formatWinKey]: increment(1), [formatMatchKey]: increment(1) });
           if (gameMode === 'cpu') earnBadge('first_cpu_win');
           else earnBadge('first_pvp_win');
           if (playerHP >= INITIAL_HP) earnBadge('perfect_battle');
           if (playerHP <= 5) earnBadge('comeback');
           checkCategoryMasterBadges();
+          // 称号条件チェック（勝利後）
+          checkTitleConditions({
+            totalCorrectAnswers: totalCorrectAnswers + sessionCorrectRef.current,
+            totalWins: 0, // Firestoreから正確な値が取れないためloginStreakバッジ経由で確認
+            loginStreak,
+            playerLevel: playerLevelRef.current,
+            earnedBadgeIds,
+          });
         } else {
           const loseDetail = battleFormat !== 'master_duel' ? `\n${newPlayerRoundWins}-${newPcRoundWins} (${formatLabel})` : '';
           setWinner(`敗北...\n次こそ勝とう！${loseDetail}`);
@@ -2014,7 +2196,11 @@ const App: React.FC = () => {
             srsReviewCount={getDueCount()}
             onOpenWeakness={() => setShowWeaknessPanel(true)}
             onOpenItemShop={() => setShowItemShop(true)}
-            equippedTitleName={equippedTitle ? SHOP_ITEMS.find(i => i.id === equippedTitle)?.name || null : null}
+            equippedTitleName={equippedTitle
+              ? (TITLE_DEFS.find(t => t.id === equippedTitle)?.name
+                || SHOP_ITEMS.find(i => i.id === equippedTitle)?.name
+                || null)
+              : null}
           />
         );
 
@@ -2126,6 +2312,7 @@ const App: React.FC = () => {
               playerRoundWins={playerRoundWins}
               pcRoundWins={pcRoundWins}
               currentRound={currentRound}
+              battleTheme={equippedTheme}
             />
             {/* 相手切断通知バナー */}
             {opponentDisconnected && gameMode === 'pvp' && (
@@ -2275,7 +2462,7 @@ const App: React.FC = () => {
                     }
                     setWinner('勝利！');
                     addExp(500);
-                    setMathPoints(p => p + 300);
+                    addMathPoints(300);
                     setGameState('end');
                   }}
                   className="bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-colors"
@@ -2366,10 +2553,35 @@ const App: React.FC = () => {
             socialPoints={socialPoints}
             ownedItems={ownedShopItems}
             equippedTitle={equippedTitle}
+            earnedTitleIds={earnedTitleIds}
+            equippedTheme={equippedTheme}
+            hintTokens={hintTokens}
             onPurchase={handleShopPurchase}
             onEquipTitle={setEquippedTitle}
+            onEquipTheme={setEquippedTheme}
             onClose={() => setShowItemShop(false)}
           />
+        )}
+        {/* ストリークシールド発動トースト */}
+        {shieldUsedThisSession && (
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-blue-900/90 border border-blue-400/50 rounded-xl px-6 py-3 flex items-center gap-3 shadow-2xl animate-math-fade-in">
+            <span className="text-2xl">🛡️</span>
+            <div>
+              <p className="text-blue-200 text-sm font-bold">ストリークシールド発動！</p>
+              <p className="text-blue-300/70 text-xs">ログインストリークを守りました</p>
+            </div>
+            <button onClick={() => setShieldUsedThisSession(false)} className="text-blue-400 hover:text-white ml-2">✕</button>
+          </div>
+        )}
+        {/* MPブースター カウントダウンバナー */}
+        {activeBooster?.type === 'mp_booster' && activeBooster.expiresAt > Date.now() && gameState === 'main_menu' && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40 bg-amber-900/80 border border-amber-500/40 rounded-lg px-4 py-2 flex items-center gap-2 text-xs font-bold text-amber-300">
+            <span>⚡</span>
+            <span>2倍MPブースター発動中</span>
+            <span className="font-mono">
+              {Math.ceil((activeBooster.expiresAt - Date.now()) / 60000)}分残
+            </span>
+          </div>
         )}
       </div>
     </main>
