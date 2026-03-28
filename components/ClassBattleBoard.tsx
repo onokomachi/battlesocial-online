@@ -100,10 +100,19 @@ const ClassBattleBoard: React.FC<ClassBattleBoardProps> = ({
           totalAnswered: number;
         }>();
 
+        const currentSchoolYear = new Date().getMonth() + 1 >= 4
+          ? new Date().getFullYear()
+          : new Date().getFullYear() - 1;
+
         usersSnap.forEach(docSnap => {
           const d = docSnap.data();
           const sp = d.studentProfile;
           if (!sp) return;
+
+          // 卒業済み（grade=4）はランキング除外
+          if ((sp.grade ?? 1) > 3) return;
+          // 年度未更新（前年度のまま）はランキング除外
+          if ((sp.schoolYear ?? 0) > 0 && sp.schoolYear < currentSchoolYear) return;
 
           // schoolName がなければ第三中学校（既存ユーザー対応）
           const schoolName: string = sp.schoolName || '第三中学校';
