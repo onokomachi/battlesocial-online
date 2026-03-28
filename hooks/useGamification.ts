@@ -1,17 +1,17 @@
 /**
- * useGamification.ts — バッジ・チェイン・クエスト・ショップ統合
+ * useGamification.ts — バッジ・チェイン・クエスト・ショップ・称号統合
  *
  * エビデンスB: 自己決定理論（Deci & Ryan 1985）— 有能感フィードバック
  * エビデンスA: 目標設定理論（Locke & Latham 1990, d=0.48）
  */
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { doc, updateDoc, increment, arrayUnion } from 'firebase/firestore';
+import { doc, updateDoc, increment, arrayUnion, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { User } from 'firebase/auth';
 import type { BadgeDef, ShopItemDef } from '../types';
 import {
   BADGE_DEFS, DAILY_QUEST_DEFS, WEEKLY_QUEST_DEFS,
-  getTodayStr, getWeekStart, SHOP_ITEMS,
+  getTodayStr, getWeekStart, SHOP_ITEMS, TITLE_DEFS,
 } from '../constants';
 
 export const useGamification = (user: User | null) => {
@@ -23,6 +23,14 @@ export const useGamification = (user: User | null) => {
   const [earnedBadgeIds, setEarnedBadgeIds] = useState<Set<string>>(new Set());
   const [pendingBadge, setPendingBadge] = useState<BadgeDef | null>(null);
   const [totalCorrectAnswers, setTotalCorrectAnswers] = useState(0);
+
+  // --- 称号 ---
+  const [earnedTitleIds, setEarnedTitleIds] = useState<Set<string>>(() => {
+    try {
+      const s = localStorage.getItem('bm_earned_titles');
+      return s ? new Set(JSON.parse(s)) : new Set(['title_newcomer']);
+    } catch { return new Set(['title_newcomer']); }
+  });
 
   // --- クエスト ---
   const [dailyQuestProgress, setDailyQuestProgress] = useState<Record<string, number>>({});
@@ -59,6 +67,11 @@ export const useGamification = (user: User | null) => {
     setMpDelta(prev => prev + amount);
   }, []);
 
+  // 称号の localStorage永続化
+  useEffect(() => {
+    localStorage.setItem('bm_earned_titles', JSON.stringify(Array.from(earnedTitleIds)));
+  }, [earnedTitleIds]);
+
   // ショップの localStorage永続化
   useEffect(() => {
     localStorage.setItem('bm_owned_shop_items', JSON.stringify(Array.from(ownedShopItems)));
@@ -77,6 +90,13 @@ export const useGamification = (user: User | null) => {
   const initFromFirestore = useCallback((data: Record<string, any>) => {
     if (data.earnedBadgeIds) setEarnedBadgeIds(new Set(data.earnedBadgeIds));
     if (data.totalCorrectAnswers !== undefined) setTotalCorrectAnswers(data.totalCorrectAnswers);
+    if (data.earnedTitleIds) {
+      setEarnedTitleIds(prev => {
+        const merged = new Set(prev);
+        (data.earnedTitleIds as string[]).forEach(id => merged.add(id));
+        return merged;
+      });
+    }
     // クエスト進捗をlocalStorageから復元
     const dqKey = `bm_dq_${getTodayStr()}`;
     const wqKey = `bm_wq_${getWeekStart()}`;
@@ -105,6 +125,76 @@ export const useGamification = (user: User | null) => {
       return new Set(prev).add(badgeId);
     });
   }, [user, addMp]);
+
+  // 称号付与
+  const earnTitle = useCallback((titleId: string) => {
+    setEarnedTitleIds(prev => {
+      if (prev.has(titleId)) return prev;
+      if (!TITLE_DEFS.find(t => t.id === titleId)) return prev;
+      if (user && db) {
+        updateDoc(doc(db, 'users', user.uid), {
+          earnedTitleIds: arrayUnion(titleId),
+        }).catch(() => {});
+      }
+      return new Set(prev).add(titleId);
+    });
+  }, [user]);
+
+  // 称号条件チェック（バトル終了・バッジ獲得・レベルアップ時に呼ぶ）
+  const checkTitleConditions = useCallback((snapshot: {
+    totalCorrectAnswers: number;
+    totalWins: number;
+    loginStreak: number;
+    playerLevel: number;
+    earnedBadgeIds: Set<string>;
+  }) => {
+    setEarnedTitleIds(prev => {
+      const toAdd: string[] = [];
+      TITLE_DEFS.filter(t => !t.isMonthly && !prev.has(t.id)).forEach(title => {
+        const { type, value = 0, badgeId } = title.condition;
+        const ok =
+          type === 'any' ||
+          (type === 'total_correct' && snapshot.totalCorrectAnswers >= value) ||
+          (type === 'total_wins' && snapshot.totalWins >= value) ||
+          (type === 'login_streak' && snapshot.loginStreak >= value) ||
+          (type === 'level' && snapshot.playerLevel >= value) ||
+          (type === 'badge_owned' && !!badgeId && snapshot.earnedBadgeIds.has(badgeId));
+        if (ok) toAdd.push(title.id);
+      });
+      if (toAdd.length === 0) return prev;
+      const next = new Set(prev);
+      toAdd.forEach(id => {
+        next.add(id);
+        if (user && db) {
+          updateDoc(doc(db, 'users', user.uid), {
+            earnedTitleIds: arrayUnion(id),
+          }).catch(() => {});
+        }
+      });
+      return next;
+    });
+  }, [user]);
+
+  // 月次チャンピオン称号チェック（ログイン時1回のみFirestore読み取り）
+  const checkMonthlyChampion = useCallback(async () => {
+    if (!db || !user) return;
+    const monthKey = new Date().toISOString().slice(0, 7);
+    try {
+      const snap = await getDoc(doc(db, 'config', `monthly_champion_${monthKey}`));
+      const isChampion = snap.exists() && snap.data()?.winnerUid === user.uid;
+      if (isChampion) {
+        earnTitle('title_monthly_champion');
+      } else {
+        setEquippedTitle(prev => prev === 'title_monthly_champion' ? null : prev);
+        setEarnedTitleIds(prev => {
+          if (!prev.has('title_monthly_champion')) return prev;
+          const n = new Set(prev);
+          n.delete('title_monthly_champion');
+          return n;
+        });
+      }
+    } catch {}
+  }, [user, earnTitle]);
 
   // クエスト進捗
   const handleQuestProgress = useCallback((type: 'correct' | 'pvp_match') => {
@@ -219,13 +309,19 @@ export const useGamification = (user: User | null) => {
     return true;
   }, [ownedShopItems, user, addMp]);
 
-  const equippedTitleName = equippedTitle ? SHOP_ITEMS.find(i => i.id === equippedTitle)?.name || null : null;
+  const equippedTitleName = equippedTitle
+    ? (TITLE_DEFS.find(t => t.id === equippedTitle)?.name
+      || SHOP_ITEMS.find(i => i.id === equippedTitle)?.name
+      || null)
+    : null;
 
   return {
     // チェイン
     chainCount, setChainCount, wrongAnswerText,
     // バッジ
     earnedBadgeIds, pendingBadge, setPendingBadge, totalCorrectAnswers, earnBadge,
+    // 称号
+    earnedTitleIds, earnTitle, checkTitleConditions, checkMonthlyChampion,
     // クエスト
     dailyQuestProgress, dailyQuestDone, weeklyQuestProgress, weeklyQuestDone, handleQuestProgress,
     // ショップ
